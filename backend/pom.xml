@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <camunda.zeebe.version>8.4.0</camunda.zeebe.version>
+        <camunda7.version>7.21.0</camunda7.version>
         <springdoc-openapi.version>2.3.0</springdoc-openapi.version>
         <jjwt.version>0.12.5</jjwt.version>
     </properties>
@@ -53,11 +53,11 @@
             <artifactId>flyway-core</artifactId>
         </dependency>
 
-        <!-- Camunda 8 Zeebe Spring Client -->
+        <!-- Camunda 7 Embedded Starter & Cockpit WebApp -->
         <dependency>
-            <groupId>io.camunda</groupId>
-            <artifactId>spring-zeebe-starter</artifactId>
-            <version>8.4.0</version>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
+            <version>${camunda7.version}</version>
         </dependency>
 
         <!-- JWT Authentication -->

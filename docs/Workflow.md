@@ -1,33 +1,33 @@
-# Camunda 8 BPMN Workflow Specification
+# Camunda 7 BPMN Workflow Specification
 
 ## 1. Process Overview: `CustomerRecoveryProcess`
 
-The customer recovery lifecycle is automated using **Camunda 8 (Zeebe)** workflow engine.
+The customer recovery lifecycle is automated using the embedded **Camunda 7** workflow engine.
 
 ```
 [ Customer Imported ]
          │
          ▼
-[ Run Detection Engine ]  (Job Worker: run-detection-engine)
+[ Run Detection Engine ]  (JavaDelegate: runDetectionEngineDelegate)
          │
          ▼
-[ Evaluate Customer Value ]  (Job Worker: evaluate-customer-value)
+[ Evaluate Customer Value ]  (JavaDelegate: evaluateCustomerValueDelegate)
          │
          ▼
-[ Recommend Recovery Action ]  (Job Worker: recommend-recovery-action)
+[ Recommend Recovery Action ]  (JavaDelegate: recommendRecoveryActionDelegate)
          │
-         ├── (requiresApproval = true)  ──► [ Manager Approval ] (User Task)
+         ├── (requiresApproval == true) ──► [ Manager Approval ] (User Task)
          │                                       │
-         └── (requiresApproval = false) ─────────┼──────┐
+         └── (requiresApproval == false) ────────┼──────┐
                                                         │
                                                         ▼
-[ Execute Recovery Action ]  (Job Worker: execute-recovery-action)
+[ Execute Recovery Action ]  (JavaDelegate: executeRecoveryActionDelegate)
          │
          ▼
 [ Wait for Outcome ]  (Timer Event: 30 Days)
          │
          ▼
-[ Close Recovery Case ]  (Job Worker: close-recovery-case)
+[ Close Recovery Case ]  (JavaDelegate: closeRecoveryCaseDelegate)
          │
          ▼
 [ Case Closed End Event ]
@@ -35,11 +35,11 @@ The customer recovery lifecycle is automated using **Camunda 8 (Zeebe)** workflo
 
 ---
 
-## 2. Zeebe Job Workers
+## 2. Spring Java Delegates
 
-Defined in `com.retention.intelligence.workflow.CustomerRecoveryWorkflowWorker`:
-1. `run-detection-engine`
-2. `evaluate-customer-value`
-3. `recommend-recovery-action`
-4. `execute-recovery-action`
-5. `close-recovery-case`
+Located in `com.retention.intelligence.workflow.delegates`:
+1. `runDetectionEngineDelegate`
+2. `evaluateCustomerValueDelegate`
+3. `recommendRecoveryActionDelegate`
+4. `executeRecoveryActionDelegate`
+5. `closeRecoveryCaseDelegate`

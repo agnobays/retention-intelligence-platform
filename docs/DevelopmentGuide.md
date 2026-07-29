@@ -10,23 +10,24 @@ Welcome to the **Customer Retention Intelligence Platform** project! This guide 
 * **Java 21**: Verify with `java -version`
 * **Maven 3.8+**: Verify with `mvn -version`
 * **Node.js 20+ & npm**: Verify with `node -v`
-* **Docker & Docker Compose**: Verify with `docker compose version`
+* **Docker**: Verify with `docker --version`
 
 ### Step-by-Step Setup
 1. **Clone & Checkout Develop Branch**:
    ```bash
    git checkout develop
    ```
-2. **Start Local Database & Camunda 8 Zeebe Broker**:
+2. **Start PostgreSQL Database**:
    ```bash
-   docker-compose up postgres zeebe -d
+   docker-compose up postgres -d
    ```
 3. **Run Backend Service**:
    ```bash
    cd backend
    mvn spring-boot:run
    ```
-   * Swagger UI will be available at `http://localhost:8080/swagger-ui.html`.
+   * **API Swagger UI**: `http://localhost:8080/swagger-ui.html`
+   * **Camunda Cockpit Dashboard**: `http://localhost:8080/camunda/app/cockpit/` (Admin login: `admin` / `adminpassword`)
 4. **Run Frontend Application**:
    ```bash
    cd frontend
@@ -37,46 +38,19 @@ Welcome to the **Customer Retention Intelligence Platform** project! This guide 
 
 ---
 
-## 👩‍💻 2. Git Workflow for Feature Work
+## 👩‍💻 2. How to Add a New Workflow Delegate
 
-* **Never commit directly to `main` or `develop`.**
-* Create a feature branch off `develop`:
-  ```bash
-  git checkout develop
-  git pull origin develop
-  git checkout -b feature/your-feature-name
-  ```
-* Naming conventions for branches:
-  * `feature/authentication`
-  * `feature/customer-management`
-  * `feature/detection-engine`
-  * `feature/decision-engine`
-  * `feature/dashboard`
-* Push your feature branch and open a Pull Request (PR) into `develop`.
-
----
-
-## 🏗️ 3. How to Implement a New Feature Module
-
-### Adding a Backend Feature
-1. Add entity properties in `entity/` if needed.
-2. Add Flyway SQL script in `db/migration/V2__your_change.sql`.
-3. Add repository methods in `repository/`.
-4. Define DTO request/response payload in `dto/`.
-5. Implement business logic in `service/`.
-6. Expose REST endpoint in `controller/` with `@Operation` OpenAPI annotations.
-7. Write unit tests in `src/test/java/`.
-
-### Adding a Frontend Feature
-1. Define TypeScript interface in `src/types/index.ts`.
-2. Add API call method in `src/services/`.
-3. Build modular UI component in `src/components/`.
-4. Create or update page in `src/pages/`.
-5. Connect route in `src/App.tsx`.
-
----
-
-## 🧪 4. Testing Guidelines
-
-* **Backend Unit Tests**: Run `mvn test` inside `backend/`.
-* **Frontend Verification**: Run `npm run build` and `npm run lint` inside `frontend/`.
+To create a new task in Camunda 7:
+1. Create a Spring component class in `com.retention.intelligence.workflow.delegates`:
+   ```java
+   @Component("myNewTaskDelegate")
+   public class MyNewTaskDelegate implements JavaDelegate {
+       @Override
+       public void execute(DelegateExecution execution) throws Exception {
+           // Your business logic here
+       }
+   }
+   ```
+2. Open `src/main/resources/bpmn/CustomerRecoveryProcess.bpmn` in Camunda Modeler and set the Service Task implementation to:
+   - **Type**: `Delegate Expression`
+   - **Delegate Expression**: `${myNewTaskDelegate}`

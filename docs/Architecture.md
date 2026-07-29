@@ -2,7 +2,7 @@
 
 ## 1. System Overview
 
-The **Customer Retention Intelligence Platform** is built using a modern Java microservice architecture paired with a React single-page application and Camunda 8 workflow engine.
+The **Customer Retention Intelligence Platform** is built using a Java microservice architecture with an **Embedded Camunda 7 Workflow Engine** inside Spring Boot 3.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -19,38 +19,26 @@ The **Customer Retention Intelligence Platform** is built using a modern Java mi
 │  └───────────┬───────────┘   └───────────┬───────────┘  │
 │              │                           │              │
 │  ┌───────────▼───────────┐   ┌───────────▼───────────┐  │
-│  │     Business Engines  │   │  Spring Data JPA Repos│  │
+│  │     Business Service  │   │  Camunda 7 Engine     │  │
+│  │     & JavaDelegates   │   │ (Cockpit / WebApp)    │  │
 │  └───────────┬───────────┘   └───────────┬───────────┘  │
 └──────────────┼───────────────────────────┼──────────────┘
                │                           │
-               ▼                           ▼
-┌──────────────────────────┐    ┌──────────────────────────┐
-│ Camunda 8 Zeebe Engine   │    │  PostgreSQL 16 Database  │
-│ (BPMN Process Execution) │    │   (Flyway Schema V1)     │
-└──────────────────────────┘    └──────────────────────────┘
+               └─────────────┬─────────────┘
+                             ▼
+                ┌──────────────────────────┐
+                │  PostgreSQL 16 Database  │
+                │ (Flyway Schema & Camunda)│
+                └──────────────────────────┘
 ```
 
 ---
 
-## 2. Backend Architecture Layers
+## 2. Backend Architecture & Camunda 7 Embedded Integration
 
-Follows a clean layered architecture pattern:
-
-1. **Controller Layer (`com.retention.intelligence.controller`)**:
-   Exposes RESTful endpoints, handles HTTP status codes, request validation, and OpenAPI documentation tags.
-2. **Service Layer (`com.retention.intelligence.service`)**:
-   Contains core domain logic, risk score calculations, decision matrix evaluation, and orchestration with Camunda Zeebe client.
-3. **Repository Layer (`com.retention.intelligence.repository`)**:
-   Spring Data JPA repositories mapping entity queries to PostgreSQL.
-4. **Entity Layer (`com.retention.intelligence.entity`)**:
-   JPA data models representing domain concepts (`Company`, `User`, `Customer`, `CustomerValueScore`, `AtRiskMetric`, `RecoveryPlan`, `AuditLog`, `Notification`).
-5. **Security & Workflow Layer (`com.retention.intelligence.security` / `workflow`)**:
-   Handles stateless JWT authentication filters, role-based authorization rules (`SUPER_ADMIN`, `COMPANY_ADMIN`, `MANAGER`, `ANALYST`), and Zeebe `@JobWorker` event handlers.
-
----
-
-## 3. High Availability & Deployment Strategy
-
-* **Containerization**: Backend and frontend services are containerized via Docker and orchestrated with Docker Compose for local development.
-* **Database Migrations**: Flyway handles version-controlled database schema evolutions.
-* **CI/CD**: GitHub Actions workflows continuously test backend Java code and build frontend production assets.
+1. **Embedded Workflow Engine**:
+   Camunda 7 runs directly within the Spring Boot JVM via `camunda-bpm-spring-boot-starter-webapp`. It uses the shared PostgreSQL database connection for workflow runtime and history tables (`ACT_RU_*` and `ACT_HI_*`).
+2. **Java Delegates (`com.retention.intelligence.workflow.delegates`)**:
+   Workflows trigger Spring-managed `@Component` delegates implementing `org.camunda.bpm.engine.delegate.JavaDelegate`.
+3. **Camunda WebApp & Cockpit**:
+   Built-in process monitoring dashboard available at `/camunda/app/cockpit/`.

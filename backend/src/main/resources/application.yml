@@ -14,17 +14,22 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+camunda:
+  bpm:
+    auto-deployment-enabled: true
+    deployment-resource-pattern: classpath*:**/*.bpmn
+    webapp:
+      index-redirect-enabled: true
+    admin-user:
+      id: admin
+      password: adminpassword
+      first-name: System
+      last-name: Admin
+
 server:
   port: 8080
   servlet:
     context-path: /api/v1
-
-zeebe:
-  client:
-    broker:
-      contact-point: ${ZEEBE_CLIENT_BROKER_CONTACTPOINT:127.0.0.1:26500}
-    security:
-      plaintext: true
 
 jwt:
   secret: ${JWT_SECRET:eW91cl9zdXBlcl9zZWNyZXRfa3VhbGl0eV9qd3RfdG9rZW5fa2V5X2Zvcl9lbnRlcnByaXNl}

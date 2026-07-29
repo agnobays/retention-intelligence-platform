@@ -20,18 +20,6 @@ services:
       timeout: 5s
       retries: 5
 
-  zeebe:
-    image: camunda/zeebe:8.4.0
-    container_name: retention_zeebe
-    restart: always
-    environment:
-      ZEEBE_LOG_LEVEL: debug
-      ZEEBE_BROKER_GATEWAY_ENABLE: "true"
-      ZEEBE_BROKER_EMBEDDED_GATEWAY_ENABLE: "true"
-    ports:
-      - "26500:26500"
-      - "9600:9600"
-
   backend:
     build:
       context: .
@@ -41,14 +29,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      zeebe:
-        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retention_db
       SPRING_DATASOURCE_USERNAME: retention_user
       SPRING_DATASOURCE_PASSWORD: retention_password
-      ZEEBE_CLIENT_BROKER_CONTACTPOINT: zeebe:26500
       JWT_SECRET: eW91cl9zdXBlcl9zZWNyZXRfa3VhbGl0eV9qd3RfdG9rZW5fa2V5X2Zvcl9lbnRlcnByaXNl
     ports:
       - "8080:8080"
