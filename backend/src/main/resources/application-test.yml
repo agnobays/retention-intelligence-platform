@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/retention_db}
+    username: ${SPRING_DATASOURCE_USERNAME:retention_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:retention_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+
+camunda:
+  bpm:
+    auto-deployment-enabled: true
+    job-execution:
+      enabled: false

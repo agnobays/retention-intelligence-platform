@@ -36,7 +36,11 @@ jobs:
         cache: 'maven'
         cache-dependency-path: 'backend/pom.xml'
 
-    - name: Build with Maven
+    - name: Build and Package with Maven
+      env:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/retention_db
+        SPRING_DATASOURCE_USERNAME: retention_user
+        SPRING_DATASOURCE_PASSWORD: retention_password
       run: |
         cd backend
         mvn clean package
