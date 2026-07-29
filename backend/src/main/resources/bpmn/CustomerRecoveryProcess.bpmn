@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_CustomerRecoveryProcess"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.0.0">
+  <bpmn:process id="CustomerRecoveryProcess" name="Customer Recovery Process" isExecutable="true">
+    
+    <!-- Start Event -->
+    <bpmn:startEvent id="StartEvent_CustomerImported" name="Customer Imported">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- 1. Run Detection Engine -->
+    <bpmn:serviceTask id="Task_RunDetectionEngine" name="Run Detection Engine">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="run-detection-engine" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- 2. Evaluate Customer Value -->
+    <bpmn:serviceTask id="Task_EvaluateCustomerValue" name="Evaluate Customer Value">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="evaluate-customer-value" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- 3. Recommend Recovery Action -->
+    <bpmn:serviceTask id="Task_RecommendRecoveryAction" name="Recommend Recovery Action">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="recommend-recovery-action" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- Gateway: Manager Approval Required? -->
+    <bpmn:exclusiveGateway id="Gateway_ManagerApproval" name="Manager Approval Required?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_ManagerApproval</bpmn:outgoing>
+      <bpmn:outgoing>Flow_AutoApprove</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Manager Approval User Task -->
+    <bpmn:userTask id="Task_ManagerApproval" name="Manager Approval">
+      <bpmn:incoming>Flow_ManagerApproval</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Join Gateway -->
+    <bpmn:exclusiveGateway id="Gateway_Join">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:incoming>Flow_AutoApprove</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- 4. Execute Recovery Action -->
+    <bpmn:serviceTask id="Task_ExecuteRecoveryAction" name="Execute Recovery Action">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="execute-recovery-action" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- 5. Wait for Outcome -->
+    <bpmn:intermediateCatchEvent id="Event_WaitForOutcome" name="Wait for Outcome">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="Timer_Wait30Days">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P30D</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+
+    <!-- 6. Close Recovery Case -->
+    <bpmn:serviceTask id="Task_CloseRecoveryCase" name="Close Recovery Case">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="close-recovery-case" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- End Event -->
+    <bpmn:endEvent id="EndEvent_CaseClosed" name="Case Closed">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_CustomerImported" targetRef="Task_RunDetectionEngine" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_RunDetectionEngine" targetRef="Task_EvaluateCustomerValue" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_EvaluateCustomerValue" targetRef="Task_RecommendRecoveryAction" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_RecommendRecoveryAction" targetRef="Gateway_ManagerApproval" />
+    <bpmn:sequenceFlow id="Flow_ManagerApproval" sourceRef="Gateway_ManagerApproval" targetRef="Task_ManagerApproval">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= requiresApproval = true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_AutoApprove" sourceRef="Gateway_ManagerApproval" targetRef="Gateway_Join">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= requiresApproval = false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_ManagerApproval" targetRef="Gateway_Join" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Gateway_Join" targetRef="Task_ExecuteRecoveryAction" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_ExecuteRecoveryAction" targetRef="Event_WaitForOutcome" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Event_WaitForOutcome" targetRef="Task_CloseRecoveryCase" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_CloseRecoveryCase" targetRef="EndEvent_CaseClosed" />
+
+  </bpmn:process>
+</bpmn:definitions>

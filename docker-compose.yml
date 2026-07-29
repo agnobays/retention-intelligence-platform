@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: retention_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: retention_db
+      POSTGRES_USER: retention_user
+      POSTGRES_PASSWORD: retention_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U retention_user -d retention_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zeebe:
+    image: camunda/zeebe:8.4.0
+    container_name: retention_zeebe
+    restart: always
+    environment:
+      ZEEBE_LOG_LEVEL: debug
+      ZEEBE_BROKER_GATEWAY_ENABLE: "true"
+      ZEEBE_BROKER_EMBEDDED_GATEWAY_ENABLE: "true"
+    ports:
+      - "26500:26500"
+      - "9600:9600"
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: retention_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      zeebe:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retention_db
+      SPRING_DATASOURCE_USERNAME: retention_user
+      SPRING_DATASOURCE_PASSWORD: retention_password
+      ZEEBE_CLIENT_BROKER_CONTACTPOINT: zeebe:26500
+      JWT_SECRET: eW91cl9zdXBlcl9zZWNyZXRfa3VhbGl0eV9qd3RfdG9rZW5fa2V5X2Zvcl9lbnRlcnByaXNl
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: retention_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:
