@@ -4,7 +4,6 @@ import com.retention.intelligence.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -35,31 +33,7 @@ public class SecurityConfig {
             .cors(cors -> {})
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/auth/**",
-                    "/api/v1/auth/**",
-                    "/customers/**",
-                    "/api/v1/customers/**",
-                    "/reports/**",
-                    "/api/v1/reports/**",
-                    "/workflows/**",
-                    "/api/v1/workflows/**",
-                    "/detection-rules/**",
-                    "/api/v1/detection-rules/**",
-                    "/notifications/**",
-                    "/api/v1/notifications/**",
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**",
-                    "/actuator/**",
-                    "/camunda/**",
-                    "/camunda-welcome/**",
-                    "/app/**",
-                    "/lib/**",
-                    "/api/engine/**",
-                    "/h2-console/**"
-                ).permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
