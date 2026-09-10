@@ -14,9 +14,9 @@ services:
           name: retention-db
           property: jdbcConnectionString
       - key: RESEND_API_KEY
-        value: re_demo_key
+        sync: false
       - key: RESEND_FROM_EMAIL
-        value: retention@agnoandfriends.com
+        value: onboarding@resend.dev
 
 databases:
   - name: retention-db
