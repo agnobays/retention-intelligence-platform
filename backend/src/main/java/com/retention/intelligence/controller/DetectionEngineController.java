@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/detection")
+@RequestMapping({"/api/v1/detection", "/detection"})
 @RequiredArgsConstructor
 @Tag(name = "Detection Engine", description = "Endpoints for analyzing churn risk signals and metric drops")
 public class DetectionEngineController {

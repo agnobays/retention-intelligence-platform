@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/customers")
+@RequestMapping({"/api/v1/customers", "/customers"})
 @RequiredArgsConstructor
 @Tag(name = "Customer Management", description = "Endpoints for Customer Import and Telemetry Status")
 public class CustomerController {

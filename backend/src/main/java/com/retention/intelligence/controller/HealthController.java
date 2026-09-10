@@ -13,7 +13,7 @@ import java.util.Map;
 @Tag(name = "Health & Info", description = "Root system health and platform status endpoints")
 public class HealthController {
 
-    @GetMapping({"/", "/health", "/status", "/info"})
+    @GetMapping({"/", "/api/v1", "/api/v1/", "/health", "/status", "/info"})
     @Operation(summary = "Root System Health", description = "Returns active platform status and navigation links")
     public ResponseEntity<Map<String, Object>> getRootStatus() {
         return ResponseEntity.ok(Map.of(
@@ -25,7 +25,7 @@ public class HealthController {
                         "customers", "/api/v1/customers",
                         "workflowTasks", "/api/v1/workflow/tasks",
                         "detectionBatch", "/api/v1/detection/evaluate-batch",
-                        "swaggerUI", "/api/v1/swagger-ui.html"
+                        "swaggerUI", "/swagger-ui.html"
                 )
         ));
     }

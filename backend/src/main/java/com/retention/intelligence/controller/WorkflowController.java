@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/workflow")
+@RequestMapping({"/api/v1/workflow", "/workflow"})
 @RequiredArgsConstructor
 @Tag(name = "Workflow (Camunda 7)", description = "Endpoints for triggering and querying BPMN Customer Recovery Workflows")
 public class WorkflowController {
