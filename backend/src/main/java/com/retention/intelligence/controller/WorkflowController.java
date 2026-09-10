@@ -1,6 +1,7 @@
 package com.retention.intelligence.controller;
 
 import com.retention.intelligence.dto.WorkflowDTO;
+import com.retention.intelligence.service.EmailService;
 import com.retention.intelligence.service.WorkflowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -19,6 +21,7 @@ import java.util.UUID;
 public class WorkflowController {
 
     private final WorkflowService workflowService;
+    private final EmailService emailService;
 
     @PostMapping("/start/{customerId}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
@@ -27,17 +30,44 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.startRecoveryWorkflow(customerId));
     }
 
-    @GetMapping("/tasks/pending")
+    @GetMapping({"/tasks", "/tasks/pending"})
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Get Pending Manager Approval User Tasks", description = "Retrieves all active Camunda user tasks waiting for manager approval")
     public ResponseEntity<List<WorkflowDTO>> getPendingManagerTasks() {
         return ResponseEntity.ok(workflowService.getPendingManagerTasks());
     }
 
-    @PostMapping("/tasks/complete/{taskId}")
+    @PostMapping({"/tasks/{taskId}/complete", "/tasks/complete/{taskId}"})
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
-    @Operation(summary = "Complete Manager Approval Task", description = "Approves or rejects a pending Camunda user task")
-    public ResponseEntity<WorkflowDTO> completeManagerTask(@PathVariable String taskId, @RequestParam(defaultValue = "true") boolean approved) {
-        return ResponseEntity.ok(workflowService.completeManagerTask(taskId, approved));
+    @Operation(summary = "Complete Manager Approval Task", description = "Approves or rejects a pending Camunda user task and triggers immediate retention email")
+    public ResponseEntity<WorkflowDTO> completeManagerTask(
+            @PathVariable String taskId,
+            @RequestParam(required = false, defaultValue = "true") Boolean approved,
+            @RequestBody(required = false) Map<String, Object> body) {
+        
+        boolean isApproved = true;
+        if (approved != null) {
+            isApproved = approved;
+        }
+        if (body != null && body.containsKey("approved")) {
+            Object appObj = body.get("approved");
+            if (appObj instanceof Boolean) {
+                isApproved = (Boolean) appObj;
+            }
+        }
+
+        return ResponseEntity.ok(workflowService.completeManagerTask(taskId, isApproved));
+    }
+
+    @PostMapping({"/test-email", "/send-email"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
+    @Operation(summary = "Dispatch Immediate Retention Email", description = "Dispatches immediate test retention email to recipient")
+    public ResponseEntity<Map<String, String>> sendTestEmail(@RequestBody(required = false) Map<String, String> payload) {
+        String recipient = (payload != null && payload.containsKey("recipient")) ? payload.get("recipient") : "zolani1999@gmail.com";
+        String customerName = (payload != null && payload.containsKey("customerName")) ? payload.get("customerName") : "Shoprite Holdings Ltd";
+        int discount = (payload != null && payload.containsKey("discount")) ? Integer.parseInt(payload.get("discount")) : 15;
+
+        String result = emailService.sendDirectEmail(customerName, "SB-CIB-1001", discount, "Executive Fee Concession & RM Outreach", recipient);
+        return ResponseEntity.ok(Map.of("status", result, "recipient", recipient, "customerName", customerName));
     }
 }

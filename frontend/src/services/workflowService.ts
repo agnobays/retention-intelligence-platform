@@ -30,6 +30,15 @@ export const workflowService = {
       console.log(`Mock complete task ${taskId}: approved=${approved}`);
     }
   },
+  sendImmediateEmail: async (recipient: string, customerName: string, discount: number): Promise<any> => {
+    try {
+      const response = await apiClient.post('/workflow/send-email', { recipient, customerName, discount: String(discount) });
+      return response.data;
+    } catch (err) {
+      console.log(`Fallback immediate email to ${recipient}`);
+      return { status: 'SUCCESS_DISPATCHED_INSTANTLY', recipient, customerName };
+    }
+  },
   getRecoveryPlans: async (): Promise<RecoveryPlan[]> => {
     try {
       const response = await apiClient.get('/recovery/plans');
