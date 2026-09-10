@@ -5,7 +5,6 @@ import com.retention.intelligence.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +22,6 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
     @Operation(summary = "Get Unread User Notifications", description = "Returns active unread alerts for a user")
     public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable UUID userId) {
         return ResponseEntity.ok(notificationService.getUnreadUserNotifications(userId));

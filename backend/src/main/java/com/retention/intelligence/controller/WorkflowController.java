@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,21 +23,18 @@ public class WorkflowController {
     private final EmailService emailService;
 
     @PostMapping("/start/{customerId}")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Start Customer Recovery BPMN Workflow", description = "Launches Camunda CustomerRecoveryProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startRecoveryWorkflow(@PathVariable UUID customerId) {
         return ResponseEntity.ok(workflowService.startRecoveryWorkflow(customerId));
     }
 
     @GetMapping({"/tasks", "/tasks/pending"})
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Get Pending Manager Approval User Tasks", description = "Retrieves all active Camunda user tasks waiting for manager approval")
     public ResponseEntity<List<WorkflowDTO>> getPendingManagerTasks() {
         return ResponseEntity.ok(workflowService.getPendingManagerTasks());
     }
 
     @PostMapping({"/tasks/{taskId}/complete", "/tasks/complete/{taskId}"})
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Complete Manager Approval Task", description = "Approves or rejects a pending Camunda user task and triggers immediate retention email")
     public ResponseEntity<WorkflowDTO> completeManagerTask(
             @PathVariable String taskId,
@@ -60,7 +56,6 @@ public class WorkflowController {
     }
 
     @PostMapping({"/test-email", "/send-email"})
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Dispatch Immediate Retention Email", description = "Dispatches immediate test retention email to recipient")
     public ResponseEntity<Map<String, String>> sendTestEmail(@RequestBody(required = false) Map<String, String> payload) {
         String recipient = (payload != null && payload.containsKey("recipient")) ? payload.get("recipient") : "zolani1999@gmail.com";

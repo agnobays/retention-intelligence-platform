@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +24,6 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
     @Operation(summary = "Get All Customers", description = "Retrieves all monitored enterprise customers")
     public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
         log.info("================================================================================");
@@ -35,7 +33,6 @@ public class CustomerController {
     }
 
     @GetMapping("/company/{companyId}")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
     @Operation(summary = "Get Customer List by Company", description = "Retrieves customers by company ID")
     public ResponseEntity<List<CustomerDTO>> getCustomersByCompany(@PathVariable UUID companyId) {
         log.info("📥 API REQUEST: GET /api/v1/customers/company/{}", companyId);
@@ -43,7 +40,6 @@ public class CustomerController {
     }
 
     @PostMapping("/import")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Import Customer Data", description = "Imports or updates customer profile data")
     public ResponseEntity<CustomerDTO> importCustomer(@Valid @RequestBody CustomerDTO dto) {
         log.info("================================================================================");

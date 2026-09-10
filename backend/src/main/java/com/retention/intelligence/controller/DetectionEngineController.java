@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -24,7 +23,6 @@ public class DetectionEngineController {
     private final DetectionEngineService detectionEngineService;
 
     @PostMapping({"/evaluate/{customerId}", "/{customerId}/evaluate"})
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
     @Operation(summary = "Run Churn Risk Detection", description = "Evaluates risk metrics and flags at-risk customers")
     public ResponseEntity<DetectionDTO> runDetection(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -34,7 +32,6 @@ public class DetectionEngineController {
     }
 
     @PostMapping({"/evaluate-batch", "/batch"})
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
     @Operation(summary = "Run Churn Detection Batch", description = "Evaluates churn risk across all active corporate accounts")
     public ResponseEntity<Map<String, Object>> runBatchDetection() {
         log.info("================================================================================");
