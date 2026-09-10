@@ -133,20 +133,20 @@ VALUES
 -- 4. Seed Customer Value Scores
 INSERT INTO customer_value_scores (id, customer_id, ltv, usage_frequency_score, support_ticket_volume, sla_tier, strategic_value_tier)
 VALUES
-(random_uuid(), 'a1111111-1111-1111-1111-111111111111', 12500000.00, 35, 8, 'ENTERPRISE_PLATINUM', 'TIER_1'),
-(random_uuid(), 'a2222222-2222-2222-2222-222222222222', 8500000.00, 52, 5, 'ENTERPRISE_GOLD', 'TIER_1'),
-(random_uuid(), 'a3333333-3333-3333-3333-333333333333', 15300000.00, 92, 1, 'ENTERPRISE_PLATINUM', 'TIER_1'),
-(random_uuid(), 'a4444444-4444-4444-4444-444444444444', 7200000.00, 28, 12, 'ENTERPRISE_GOLD', 'TIER_2'),
-(random_uuid(), 'a5555555-5555-5555-5555-555555555555', 4500000.00, 88, 2, 'STANDARD', 'TIER_2'),
-(random_uuid(), 'a6666666-6666-6666-6666-666666666666', 19600000.00, 96, 0, 'ENTERPRISE_PLATINUM', 'TIER_1');
+(gen_random_uuid(), 'a1111111-1111-1111-1111-111111111111', 12500000.00, 35, 8, 'ENTERPRISE_PLATINUM', 'TIER_1'),
+(gen_random_uuid(), 'a2222222-2222-2222-2222-222222222222', 8500000.00, 52, 5, 'ENTERPRISE_GOLD', 'TIER_1'),
+(gen_random_uuid(), 'a3333333-3333-3333-3333-333333333333', 15300000.00, 92, 1, 'ENTERPRISE_PLATINUM', 'TIER_1'),
+(gen_random_uuid(), 'a4444444-4444-4444-4444-444444444444', 7200000.00, 28, 12, 'ENTERPRISE_GOLD', 'TIER_2'),
+(gen_random_uuid(), 'a5555555-5555-5555-5555-555555555555', 4500000.00, 88, 2, 'STANDARD', 'TIER_2'),
+(gen_random_uuid(), 'a6666666-6666-6666-6666-666666666666', 19600000.00, 96, 0, 'ENTERPRISE_PLATINUM', 'TIER_1');
 
 -- 5. Seed At-Risk Metrics
 INSERT INTO at_risk_metrics (id, customer_id, metric_type, severity, metric_value)
 VALUES
-(random_uuid(), 'a1111111-1111-1111-1111-111111111111', 'TRANSACTION_VOLUME_DROP_45_PCT', 'CRITICAL', '45% decline in daily merchant clearing transactions'),
-(random_uuid(), 'a1111111-1111-1111-1111-111111111111', 'HIGH_ESCALATED_SUPPORT_TICKETS', 'HIGH', '8 unresolved corporate banking API SLA issues'),
-(random_uuid(), 'a2222222-2222-2222-2222-222222222222', 'CREDIT_LINE_DRAWDOWN_REDUCTION', 'MEDIUM', '30% drop in revolving credit facility utilization'),
-(random_uuid(), 'a4444444-4444-4444-4444-444444444444', 'NPS_DETRACTOR_SCORE', 'CRITICAL', 'NPS score dropped to 3/10 following gateway maintenance');
+(gen_random_uuid(), 'a1111111-1111-1111-1111-111111111111', 'TRANSACTION_VOLUME_DROP_45_PCT', 'CRITICAL', '45% decline in daily merchant clearing transactions'),
+(gen_random_uuid(), 'a1111111-1111-1111-1111-111111111111', 'HIGH_ESCALATED_SUPPORT_TICKETS', 'HIGH', '8 unresolved corporate banking API SLA issues'),
+(gen_random_uuid(), 'a2222222-2222-2222-2222-222222222222', 'CREDIT_LINE_DRAWDOWN_REDUCTION', 'MEDIUM', '30% drop in revolving credit facility utilization'),
+(gen_random_uuid(), 'a4444444-4444-4444-4444-444444444444', 'NPS_DETRACTOR_SCORE', 'CRITICAL', 'NPS score dropped to 3/10 following gateway maintenance');
 
 -- 6. Seed Recovery Plans
 INSERT INTO recovery_plans (id, customer_id, recommended_action, discount_percentage, assigned_manager_id, status, outcome_notes)
