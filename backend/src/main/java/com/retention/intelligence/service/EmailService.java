@@ -66,31 +66,43 @@ public class EmailService {
 
         boolean apiSuccess = false;
         if (resendApiKey != null && resendApiKey.startsWith("re_") && !resendApiKey.equals("re_demo_key")) {
-            try {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.setBearerAuth(resendApiKey);
-
-                Map<String, Object> body = new HashMap<>();
-                body.put("from", "Standard Bank CIB <" + fromEmail + ">");
-                body.put("to", List.of(toEmail));
-                body.put("subject", subject);
-                body.put("html", htmlContent);
-
-                HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-                restTemplate.postForEntity("https://api.resend.com/emails", request, String.class);
-                log.info("✅ Resend API Status: 200 OK - Email delivered via Resend cloud server to {}", toEmail);
-                apiSuccess = true;
-            } catch (Exception e) {
-                log.error("❌ Resend API Http Error: {}. Falling back to immediate log dispatch.", e.getMessage());
+            // 1st Attempt: Use configured fromEmail
+            apiSuccess = executeResendHttp(fromEmail, toEmail, subject, htmlContent);
+            
+            // 2nd Attempt: Fallback to Resend onboarding sender if domain verification error
+            if (!apiSuccess && !fromEmail.contains("onboarding@resend.dev")) {
+                log.info("Retrying Resend API dispatch with fallback sender: onboarding@resend.dev");
+                apiSuccess = executeResendHttp("onboarding@resend.dev", toEmail, subject, htmlContent);
             }
         } else {
-            log.info("ℹ️ Resend API Key is set to demo mode ('{}'). Email logged & dispatched instantly.", resendApiKey);
+            log.info("ℹ️ Resend API Key is currently using placeholder mode. Real inbox delivery requires setting RESEND_API_KEY environment variable on Render dashboard.");
         }
 
         log.info("================================================================================");
 
-        return apiSuccess ? "SUCCESS_RESEND_API" : "SUCCESS_DISPATCHED_INSTANTLY";
+        return apiSuccess ? "SUCCESS_RESEND_API_DELIVERED" : "SUCCESS_DISPATCHED_INSTANTLY";
+    }
+
+    private boolean executeResendHttp(String senderEmail, String toEmail, String subject, String htmlContent) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(resendApiKey);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("from", "Standard Bank CIB <" + senderEmail + ">");
+            body.put("to", List.of(toEmail));
+            body.put("subject", subject);
+            body.put("html", htmlContent);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            restTemplate.postForEntity("https://api.resend.com/emails", request, String.class);
+            log.info("✅ Resend API Status 200 OK: Email successfully sent via Resend API from {} to {}", senderEmail, toEmail);
+            return true;
+        } catch (Exception e) {
+            log.warn("❌ Resend API attempt from {} failed: {}", senderEmail, e.getMessage());
+            return false;
+        }
     }
 
     private String buildTier1EmailTemplate(String customerName, String externalId, int discount, String action) {
