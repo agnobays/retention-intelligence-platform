@@ -1,6 +1,11 @@
 package com.retention.intelligence.service;
 
 import com.retention.intelligence.dto.CustomerValueDTO;
+import com.retention.intelligence.entity.Customer;
+import com.retention.intelligence.entity.CustomerValueScore;
+import com.retention.intelligence.exception.ResourceNotFoundException;
+import com.retention.intelligence.repository.CustomerRepository;
+import com.retention.intelligence.repository.CustomerValueScoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,15 +16,52 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomerValueEngineService {
 
+    private final CustomerRepository customerRepository;
+    private final CustomerValueScoreRepository customerValueScoreRepository;
+
     public CustomerValueDTO calculateCustomerValue(UUID customerId) {
-        // Skeleton logic: Compute LTV, usage frequency, support ticket load, and SLA strategic tier
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
+
+        CustomerValueScore score = customerValueScoreRepository.findByCustomerId(customerId)
+                .orElseGet(() -> CustomerValueScore.builder()
+                        .customer(customer)
+                        .usageFrequencyScore(65)
+                        .supportTicketVolume(4)
+                        .build());
+
+        BigDecimal arr = customer.getArr() != null ? customer.getArr() : new BigDecimal("1000000.00");
+        BigDecimal calculatedLtv = arr.multiply(new BigDecimal("4.5"));
+        score.setLtv(calculatedLtv);
+
+        String slaTier;
+        String strategicTier;
+
+        if (calculatedLtv.compareTo(new BigDecimal("10000000.00")) >= 0) {
+            slaTier = "ENTERPRISE_PLATINUM";
+            strategicTier = "TIER_1";
+        } else if (calculatedLtv.compareTo(new BigDecimal("5000000.00")) >= 0) {
+            slaTier = "ENTERPRISE_GOLD";
+            strategicTier = "TIER_1";
+        } else if (calculatedLtv.compareTo(new BigDecimal("2000000.00")) >= 0) {
+            slaTier = "ENTERPRISE_GOLD";
+            strategicTier = "TIER_2";
+        } else {
+            slaTier = "STANDARD";
+            strategicTier = "TIER_3";
+        }
+
+        score.setSlaTier(slaTier);
+        score.setStrategicValueTier(strategicTier);
+        customerValueScoreRepository.save(score);
+
         return CustomerValueDTO.builder()
                 .customerId(customerId)
-                .ltv(new BigDecimal("125000.00"))
-                .usageFrequencyScore(85)
-                .supportTicketVolume(3)
-                .slaTier("ENTERPRISE_GOLD")
-                .strategicValueTier("TIER_1")
+                .ltv(calculatedLtv)
+                .usageFrequencyScore(score.getUsageFrequencyScore())
+                .supportTicketVolume(score.getSupportTicketVolume())
+                .slaTier(slaTier)
+                .strategicValueTier(strategicTier)
                 .build();
     }
 }

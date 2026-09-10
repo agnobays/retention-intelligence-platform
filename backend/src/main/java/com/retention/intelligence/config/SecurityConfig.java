@@ -31,6 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .cors(cors -> {})
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
@@ -44,7 +45,8 @@ public class SecurityConfig {
                     "/camunda-welcome/**",
                     "/app/**",
                     "/lib/**",
-                    "/api/engine/**"
+                    "/api/engine/**",
+                    "/h2-console/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, ShieldCheck, UserCheck } from 'lucide-react';
+import { Bell, ShieldCheck, Building2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Navbar: React.FC = () => {
@@ -8,11 +8,14 @@ export const Navbar: React.FC = () => {
   return (
     <header className="h-16 border-b border-dark-border bg-dark-card/50 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
       <div className="flex items-center gap-3">
-        <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-          Retention Intelligence
+        <div className="p-1.5 bg-brand-600/20 text-brand-400 rounded-lg border border-brand-500/30">
+          <Building2 size={20} />
+        </div>
+        <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
+          Standard Bank CIB
         </span>
         <span className="px-2 py-0.5 text-xs font-semibold bg-indigo-500/20 text-indigo-300 rounded border border-indigo-500/30">
-          Camunda 8 Enabled
+          Camunda 7 BPMN Engine
         </span>
       </div>
 
@@ -26,12 +29,12 @@ export const Navbar: React.FC = () => {
 
         <div className="flex items-center gap-2 text-sm text-slate-300">
           <div className="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center font-bold text-indigo-400">
-            {userEmail ? userEmail.substring(0, 2).toUpperCase() : 'US'}
+            {userEmail ? userEmail.substring(0, 2).toUpperCase() : 'SB'}
           </div>
           <div>
-            <div className="font-medium">{userEmail || 'admin@retention.io'}</div>
+            <div className="font-medium">{userEmail || 'admin@standardbank.co.za'}</div>
             <div className="text-xs text-indigo-400 flex items-center gap-1">
-              <ShieldCheck size={12} /> {userRole}
+              <ShieldCheck size={12} /> {userRole || 'COMPANY_ADMIN'}
             </div>
           </div>
         </div>

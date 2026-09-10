@@ -9,7 +9,7 @@
                   targetNamespace="http://bpmn.io/schema/bpmn"
                   exporter="Camunda Modeler"
                   exporterVersion="5.0.0">
-  <bpmn:process id="CustomerRecoveryProcess" name="Customer Recovery Process" isExecutable="true">
+  <bpmn:process id="CustomerRecoveryProcess" name="Customer Recovery Process" isExecutable="true" camunda:historyTimeToLive="P180D">
     
     <!-- Start Event -->
     <bpmn:startEvent id="StartEvent_CustomerImported" name="Customer Imported">

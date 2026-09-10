@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: retention-intelligence-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    region: oregon
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: retention-db
+          property: connectionString
+      - key: RESEND_API_KEY
+        value: re_demo_key
+      - key: RESEND_FROM_EMAIL
+        value: retention@agnoandfriends.com
+
+databases:
+  - name: retention-db
+    databaseName: retention_db
+    user: retention_user
+    region: oregon
+    plan: free

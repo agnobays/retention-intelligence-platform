@@ -1,7 +1,5 @@
 package com.retention.intelligence.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,12 +10,27 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @Getter
-    @AllArgsConstructor
     public static class ErrorResponse {
         private int status;
         private String message;
         private LocalDateTime timestamp;
+
+        public ErrorResponse() {}
+
+        public ErrorResponse(int status, String message, LocalDateTime timestamp) {
+            this.status = status;
+            this.message = message;
+            this.timestamp = timestamp;
+        }
+
+        public int getStatus() { return status; }
+        public void setStatus(int status) { this.status = status; }
+
+        public String getMessage() { return message; }
+        public void setMessage(String message) { this.message = message; }
+
+        public LocalDateTime getTimestamp() { return timestamp; }
+        public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

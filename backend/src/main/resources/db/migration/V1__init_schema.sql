@@ -5,7 +5,7 @@
 
 -- 1. Companies (Multi-Tenant Organizations)
 CREATE TABLE companies (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     domain VARCHAR(255) UNIQUE NOT NULL,
     industry VARCHAR(100),
@@ -16,7 +16,7 @@ CREATE TABLE companies (
 
 -- 2. Users (Platform Accounts with RBAC)
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE users (
 
 -- 3. Customers (Imported Client Data)
 CREATE TABLE customers (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     external_customer_id VARCHAR(100) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE customers (
 
 -- 4. Customer Value Scores
 CREATE TABLE customer_value_scores (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
     ltv NUMERIC(14, 2) DEFAULT 0.00,
     usage_frequency_score INT CHECK (usage_frequency_score BETWEEN 0 AND 100),
@@ -59,7 +59,7 @@ CREATE TABLE customer_value_scores (
 
 -- 5. At Risk Metrics (Detection Triggers)
 CREATE TABLE at_risk_metrics (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
     metric_type VARCHAR(100) NOT NULL, -- e.g., LOGINS_DROP_50_PCT, PAYMENT_FAILED, NPS_DETRACTOR
     severity VARCHAR(20) DEFAULT 'MEDIUM' CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
@@ -69,7 +69,7 @@ CREATE TABLE at_risk_metrics (
 
 -- 6. Decision Engine Rules & Recovery Plans
 CREATE TABLE recovery_plans (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
     recommended_action VARCHAR(255) NOT NULL,
     discount_percentage INT DEFAULT 0,
@@ -83,7 +83,7 @@ CREATE TABLE recovery_plans (
 
 -- 7. Audit Trail Logs
 CREATE TABLE audit_logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES users(id),
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(100) NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE audit_logs (
 
 -- 8. System Notifications
 CREATE TABLE notifications (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID DEFAULT random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,

@@ -16,8 +16,18 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
+    public List<CustomerDTO> getAllCustomers() {
+        return customerRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     public List<CustomerDTO> getCustomersByCompany(UUID companyId) {
-        return customerRepository.findByCompanyId(companyId).stream()
+        List<Customer> list = customerRepository.findByCompanyId(companyId);
+        if (list.isEmpty()) {
+            list = customerRepository.findAll();
+        }
+        return list.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }

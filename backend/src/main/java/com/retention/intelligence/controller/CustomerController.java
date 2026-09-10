@@ -21,9 +21,16 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
+    @Operation(summary = "Get All Customers", description = "Retrieves all monitored enterprise customers")
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getAllCustomers());
+    }
+
     @GetMapping("/company/{companyId}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
-    @Operation(summary = "Get Customer List", description = "Retrieves customers by company ID")
+    @Operation(summary = "Get Customer List by Company", description = "Retrieves customers by company ID")
     public ResponseEntity<List<CustomerDTO>> getCustomersByCompany(@PathVariable UUID companyId) {
         return ResponseEntity.ok(customerService.getCustomersByCompany(companyId));
     }
