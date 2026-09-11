@@ -26,7 +26,7 @@ public class WorkflowController {
     private final WorkflowService workflowService;
     private final EmailService emailService;
 
-    @PostMapping("/start/{customerId}")
+    @PostMapping({"/start/{customerId}", "/{customerId}/start"})
     @Operation(summary = "Start Customer Recovery BPMN Workflow", description = "Launches Camunda CustomerRecoveryProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startRecoveryWorkflow(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -35,7 +35,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.startRecoveryWorkflow(customerId));
     }
 
-    @PostMapping("/start-executive-escalation/{customerId}")
+    @PostMapping({"/start-executive-escalation/{customerId}", "/executive-escalation/{customerId}"})
     @Operation(summary = "Start Executive Escalation Camunda Workflow", description = "Launches Camunda ExecutiveEscalationProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startExecutiveEscalationWorkflow(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -44,7 +44,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.startExecutiveEscalationWorkflow(customerId));
     }
 
-    @PostMapping("/start-churn-survey/{customerId}")
+    @PostMapping({"/start-churn-survey/{customerId}", "/churn-survey/{customerId}"})
     @Operation(summary = "Start Churn Prevention Survey Camunda Workflow", description = "Launches Camunda ChurnPreventionSurveyProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startChurnPreventionSurveyWorkflow(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -53,7 +53,7 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.startChurnPreventionSurveyWorkflow(customerId));
     }
 
-    @PostMapping("/trigger-all/{customerId}")
+    @PostMapping({"/trigger-all/{customerId}", "/all/{customerId}"})
     @Operation(summary = "Trigger All 3 Camunda Workflows", description = "Launches all 3 Camunda BPMN workflows in sequence")
     public ResponseEntity<Map<String, Object>> triggerAllWorkflows(@PathVariable UUID customerId) {
         log.info("================================================================================");
