@@ -7,6 +7,8 @@ import com.retention.intelligence.exception.ResourceNotFoundException;
 import com.retention.intelligence.repository.AtRiskMetricRepository;
 import com.retention.intelligence.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,8 +19,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DetectionEngineService {
 
+    private static final Logger log = LoggerFactory.getLogger(DetectionEngineService.class);
+
     private final CustomerRepository customerRepository;
     private final AtRiskMetricRepository atRiskMetricRepository;
+    private final WorkflowService workflowService;
 
     public DetectionDTO runDetectionForCustomer(UUID customerId) {
         Customer customer = customerRepository.findById(customerId)
@@ -55,7 +60,17 @@ public class DetectionEngineService {
 
         if (updatedHealthScore < 60 || updatedChurnProb.doubleValue() > 50.0) {
             customer.setStatus("AT_RISK");
+            
+            // 1. Auto-trigger CustomerRecoveryProcess in Camunda
+            workflowService.startRecoveryWorkflow(customerId);
+
+            // 2. If Critical Risk & High Value ARR >= R 2,000,000 -> Auto-trigger ExecutiveEscalationProcess
+            if (updatedChurnProb.doubleValue() >= 75.0 && customer.getArr() != null && customer.getArr().doubleValue() >= 2000000) {
+                log.info("🔥 CRITICAL RISK DETECTED for Tier 1 Enterprise Client {}. Auto-triggering ExecutiveEscalationProcess", customer.getName());
+                workflowService.startExecutiveEscalationWorkflow(customerId);
+            }
         }
+
         customerRepository.save(customer);
 
         return DetectionDTO.builder()

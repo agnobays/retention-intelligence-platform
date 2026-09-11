@@ -51,7 +51,7 @@ public class WorkflowService {
             recoveryPlanRepository.save(latestPlan);
         }
 
-        log.info("Started Camunda workflow instance {} for customer {}", processInstance.getProcessInstanceId(), customerName);
+        log.info("🤖 AUTO-TRIGGERED Camunda CustomerRecoveryProcess instance {} for customer {}", processInstance.getProcessInstanceId(), customerName);
         if (latestPlan != null) {
             emailService.sendRecoveryEmail(latestPlan);
         } else {
@@ -68,8 +68,55 @@ public class WorkflowService {
                 .build();
     }
 
+    public WorkflowDTO startExecutiveEscalationWorkflow(UUID customerId) {
+        String processKey = "ExecutiveEscalationProcess";
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        String customerName = customer != null ? customer.getName() : "Tier 1 Enterprise Client";
+
+        Map<String, Object> variables = Map.of(
+                "customerId", customerId.toString(),
+                "criticalRisk", true,
+                "tier1Escalation", true
+        );
+
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processKey, variables);
+        log.info("⚡ AUTO-TRIGGERED Camunda ExecutiveEscalationProcess instance {} for Tier 1 Client {}", processInstance.getProcessInstanceId(), customerName);
+
+        emailService.sendDirectEmail(customerName, "SB-CIB-1001", 20, "CIB Executive VP Immediate Risk Escalation & Rate Concession", "zolani1999@gmail.com");
+
+        return WorkflowDTO.builder()
+                .processDefinitionKey(processKey)
+                .workflowInstanceId(processInstance.getProcessInstanceId())
+                .customerId(customerId)
+                .customerName(customerName)
+                .status("ACTIVE")
+                .build();
+    }
+
+    public WorkflowDTO startChurnPreventionSurveyWorkflow(UUID customerId) {
+        String processKey = "ChurnPreventionSurveyProcess";
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        String customerName = customer != null ? customer.getName() : "Corporate Client";
+
+        Map<String, Object> variables = Map.of(
+                "customerId", customerId.toString(),
+                "postRecoverySurvey", true
+        );
+
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processKey, variables);
+        log.info("📊 AUTO-TRIGGERED Camunda ChurnPreventionSurveyProcess instance {} for Client {}", processInstance.getProcessInstanceId(), customerName);
+
+        return WorkflowDTO.builder()
+                .processDefinitionKey(processKey)
+                .workflowInstanceId(processInstance.getProcessInstanceId())
+                .customerId(customerId)
+                .customerName(customerName)
+                .status("ACTIVE")
+                .build();
+    }
+
     public List<WorkflowDTO> getPendingManagerTasks() {
-        List<Task> tasks = taskService.createTaskQuery().taskDefinitionKey("Task_ManagerApproval").list();
+        List<Task> tasks = taskService.createTaskQuery().list();
         List<WorkflowDTO> dtos = new ArrayList<>();
 
         for (Task task : tasks) {
@@ -136,6 +183,8 @@ public class WorkflowService {
                 recoveryPlanRepository.save(plan);
                 if (approved) {
                     emailService.sendRecoveryEmail(plan);
+                    // Auto-start Churn Prevention Survey Process post recovery
+                    startChurnPreventionSurveyWorkflow(customerId);
                 }
             }
         } else {
