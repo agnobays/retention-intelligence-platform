@@ -9,6 +9,8 @@ import com.retention.intelligence.repository.CustomerRepository;
 import com.retention.intelligence.repository.CustomerValueScoreRepository;
 import com.retention.intelligence.repository.RecoveryPlanRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,6 +20,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class DecisionEngineService {
+
+    private static final Logger log = LoggerFactory.getLogger(DecisionEngineService.class);
 
     private final CustomerRepository customerRepository;
     private final CustomerValueScoreRepository customerValueScoreRepository;
@@ -59,6 +63,9 @@ public class DecisionEngineService {
                 .build();
 
         RecoveryPlan saved = recoveryPlanRepository.save(plan);
+
+        log.info("🧠 [DECISION ENGINE] Recommended retention strategy for {}: Action={}, Discount={}% (Approval Required={})",
+                customer.getName(), recommendedAction, discountPercentage, requiresApproval);
 
         return RecoveryDTO.builder()
                 .planId(saved.getId())

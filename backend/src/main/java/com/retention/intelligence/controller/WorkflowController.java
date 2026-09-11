@@ -6,6 +6,8 @@ import com.retention.intelligence.service.WorkflowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +21,24 @@ import java.util.UUID;
 @Tag(name = "Workflow (Camunda 7)", description = "Endpoints for triggering and querying BPMN Customer Recovery Workflows")
 public class WorkflowController {
 
+    private static final Logger log = LoggerFactory.getLogger(WorkflowController.class);
+
     private final WorkflowService workflowService;
     private final EmailService emailService;
 
     @PostMapping("/start/{customerId}")
     @Operation(summary = "Start Customer Recovery BPMN Workflow", description = "Launches Camunda CustomerRecoveryProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startRecoveryWorkflow(@PathVariable UUID customerId) {
+        log.info("================================================================================");
+        log.info("🚀 API REQUEST: POST /api/v1/workflow/start/{} - STARTING CAMUNDA BPMN WORKFLOW", customerId);
+        log.info("================================================================================");
         return ResponseEntity.ok(workflowService.startRecoveryWorkflow(customerId));
     }
 
     @GetMapping({"/tasks", "/tasks/pending"})
     @Operation(summary = "Get Pending Manager Approval User Tasks", description = "Retrieves all active Camunda user tasks waiting for manager approval")
     public ResponseEntity<List<WorkflowDTO>> getPendingManagerTasks() {
+        log.info("📥 API REQUEST: GET /api/v1/workflow/tasks/pending - Querying active Camunda user tasks");
         return ResponseEntity.ok(workflowService.getPendingManagerTasks());
     }
 
@@ -52,6 +60,10 @@ public class WorkflowController {
             }
         }
 
+        log.info("================================================================================");
+        log.info("✔️ API REQUEST: POST /api/v1/workflow/tasks/{}/complete - Approval Status: {}", taskId, isApproved);
+        log.info("================================================================================");
+
         return ResponseEntity.ok(workflowService.completeManagerTask(taskId, isApproved));
     }
 
@@ -61,6 +73,10 @@ public class WorkflowController {
         String recipient = (payload != null && payload.containsKey("recipient")) ? payload.get("recipient") : "zolani1999@gmail.com";
         String customerName = (payload != null && payload.containsKey("customerName")) ? payload.get("customerName") : "Shoprite Holdings Ltd";
         int discount = (payload != null && payload.containsKey("discount")) ? Integer.parseInt(payload.get("discount")) : 15;
+
+        log.info("================================================================================");
+        log.info("📧 API REQUEST: POST /api/v1/workflow/test-email - Triggering test email to {}", recipient);
+        log.info("================================================================================");
 
         String result = emailService.sendDirectEmail(customerName, "SB-CIB-1001", discount, "Executive Fee Concession & RM Outreach", recipient);
         return ResponseEntity.ok(Map.of("status", result, "recipient", recipient, "customerName", customerName));

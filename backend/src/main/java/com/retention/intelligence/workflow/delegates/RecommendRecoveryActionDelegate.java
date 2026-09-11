@@ -23,8 +23,12 @@ public class RecommendRecoveryActionDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        log.info("Executing Camunda Delegate: Recommend Recovery Action for process instance {}", execution.getProcessInstanceId());
         String customerIdStr = (String) execution.getVariable("customerId");
+        log.info("================================================================================");
+        log.info("💡 [CAMUNDA DELEGATE] RECOMMEND RECOVERY ACTION");
+        log.info("Process Instance ID : {}", execution.getProcessInstanceId());
+        log.info("Customer ID         : {}", customerIdStr);
+
         if (customerIdStr != null) {
             UUID customerId = UUID.fromString(customerIdStr);
             RecoveryDTO recovery = decisionEngineService.recommendRecoveryAction(customerId);
@@ -32,10 +36,17 @@ public class RecommendRecoveryActionDelegate implements JavaDelegate {
             execution.setVariable("discountPercentage", recovery.getDiscountPercentage());
             execution.setVariable("requiresApproval", Boolean.TRUE.equals(recovery.getRequiresApproval()));
             execution.setVariable("planId", recovery.getPlanId() != null ? recovery.getPlanId().toString() : null);
+
+            log.info("Recommended Action  : {}", recovery.getRecommendedAction());
+            log.info("Discount Concession : {}%", recovery.getDiscountPercentage());
+            log.info("Requires Approval   : {}", recovery.getRequiresApproval());
+            log.info("Recovery Plan ID    : {}", recovery.getPlanId());
         } else {
             execution.setVariable("recommendedAction", "DEDICATED_CIB_RELATIONSHIP_MANAGER_OUTREACH_AND_15_PERCENT_FEE_DISCOUNT");
             execution.setVariable("discountPercentage", 15);
             execution.setVariable("requiresApproval", true);
+            log.info("No Customer ID in context. Defaulted to RM Outreach & 15% discount recommendation.");
         }
+        log.info("================================================================================");
     }
 }

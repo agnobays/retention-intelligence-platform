@@ -7,6 +7,8 @@ import com.retention.intelligence.exception.ResourceNotFoundException;
 import com.retention.intelligence.repository.CustomerRepository;
 import com.retention.intelligence.repository.CustomerValueScoreRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,6 +17,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CustomerValueEngineService {
+
+    private static final Logger log = LoggerFactory.getLogger(CustomerValueEngineService.class);
 
     private final CustomerRepository customerRepository;
     private final CustomerValueScoreRepository customerValueScoreRepository;
@@ -54,6 +58,9 @@ public class CustomerValueEngineService {
         score.setSlaTier(slaTier);
         score.setStrategicValueTier(strategicTier);
         customerValueScoreRepository.save(score);
+
+        log.info("💎 [CUSTOMER VALUE ENGINE] Account={}: ARR=R{}, Calculated LTV=R{}, Tier={}, SLA={}",
+                customer.getName(), arr, calculatedLtv, strategicTier, slaTier);
 
         return CustomerValueDTO.builder()
                 .customerId(customerId)

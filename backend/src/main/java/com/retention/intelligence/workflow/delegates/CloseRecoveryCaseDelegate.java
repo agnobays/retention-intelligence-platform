@@ -23,8 +23,12 @@ public class CloseRecoveryCaseDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        log.info("Executing Camunda Delegate: Close Recovery Case for process instance {}", execution.getProcessInstanceId());
         String customerIdStr = (String) execution.getVariable("customerId");
+        log.info("================================================================================");
+        log.info("✅ [CAMUNDA DELEGATE] CLOSE RECOVERY CASE");
+        log.info("Process Instance ID : {}", execution.getProcessInstanceId());
+        log.info("Customer ID         : {}", customerIdStr);
+
         if (customerIdStr != null) {
             UUID customerId = UUID.fromString(customerIdStr);
             Customer customer = customerRepository.findById(customerId).orElse(null);
@@ -32,7 +36,15 @@ public class CloseRecoveryCaseDelegate implements JavaDelegate {
                 customer.setStatus("SAVED");
                 customer.setHealthScore(85);
                 customerRepository.save(customer);
+                log.info("Customer Name       : {}", customer.getName());
+                log.info("New Customer Status : SAVED");
+                log.info("Restored Health Score: 85/100");
+            } else {
+                log.info("Customer record not found for ID {}", customerIdStr);
             }
+        } else {
+            log.info("No Customer ID in context. Workflow case closed.");
         }
+        log.info("================================================================================");
     }
 }

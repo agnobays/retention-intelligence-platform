@@ -22,11 +22,19 @@ public class ExecuteRecoveryActionDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        log.info("Executing Camunda Delegate: Execute Recovery Action for process instance {}", execution.getProcessInstanceId());
         String planIdStr = (String) execution.getVariable("planId");
+        log.info("================================================================================");
+        log.info("🚀 [CAMUNDA DELEGATE] EXECUTE RECOVERY ACTION");
+        log.info("Process Instance ID : {}", execution.getProcessInstanceId());
+        log.info("Recovery Plan ID    : {}", planIdStr);
+
         if (planIdStr != null) {
             UUID planId = UUID.fromString(planIdStr);
             recoveryEngineService.executeRecoveryAction(planId);
+            log.info("Execution Outcome   : Dispatched retention campaign & email successfully.");
+        } else {
+            log.info("No Plan ID in context. Default execution flow completed.");
         }
+        log.info("================================================================================");
     }
 }

@@ -9,6 +9,8 @@ import com.retention.intelligence.repository.NotificationRepository;
 import com.retention.intelligence.repository.RecoveryPlanRepository;
 import com.retention.intelligence.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -16,6 +18,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class RecoveryEngineService {
+
+    private static final Logger log = LoggerFactory.getLogger(RecoveryEngineService.class);
 
     private final RecoveryPlanRepository recoveryPlanRepository;
     private final CustomerRepository customerRepository;
@@ -45,6 +49,9 @@ public class RecoveryEngineService {
                 notificationRepository.save(notification);
             }
         }
+
+        log.info("🛠️ [RECOVERY ENGINE] Executing recovery action for plan {}: Action={}, Customer={}",
+                planId, plan.getRecommendedAction(), customer != null ? customer.getName() : "Unknown");
 
         // Trigger Resend API email dispatch for Scenario A / Scenario B
         emailService.sendRecoveryEmail(plan);
