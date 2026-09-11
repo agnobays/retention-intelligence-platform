@@ -12,6 +12,7 @@ export const Customers: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<'csv' | 'single'>('csv');
   const [importing, setImporting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -137,7 +138,13 @@ SB-CIB-2006,Sanlam Life Insurance,finance@sanlam.co.za,410000.00,4920000.00,92,6
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => { setModalTab('csv'); setIsModalOpen(true); }}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium text-sm flex items-center gap-2 shadow-lg shadow-indigo-600/20"
+          >
+            📄 Import Batch CSV & Trigger Workflows
+          </button>
+          <button
+            onClick={() => { setModalTab('single'); setIsModalOpen(true); }}
             className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-medium text-sm flex items-center gap-2 shadow-lg shadow-brand-600/20"
           >
             <Plus size={16} /> Add Single Account
@@ -244,91 +251,201 @@ SB-CIB-2006,Sanlam Life Insurance,finance@sanlam.co.za,410000.00,4920000.00,92,6
       {/* Import Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-lg glass-card rounded-2xl p-6 border border-white/10 shadow-2xl">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-dark-border">
-              <h3 className="text-lg font-bold text-slate-100">Import Corporate Customer to Database</h3>
+          <div className="w-full max-w-2xl glass-card rounded-2xl p-6 border border-white/10 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-dark-border pb-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setModalTab('csv')}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    modalTab === 'csv'
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  📄 Batch CSV Spreadsheet Import & Camunda Trigger
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalTab('single')}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    modalTab === 'single'
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  ➕ Single Account Entry
+                </button>
+              </div>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-200">
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleImportSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">External Customer ID</label>
-                <input
-                  type="text"
-                  placeholder="e.g. SB-CIB-1007"
-                  value={formData.externalCustomerId}
-                  onChange={(e) => setFormData({ ...formData, externalCustomerId: e.target.value })}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
-                  required
-                />
-              </div>
+            {modalTab === 'csv' ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-indigo-950/30 border border-indigo-500/30 rounded-xl space-y-3">
+                  <h3 className="text-sm font-semibold text-slate-100">Upload Corporate Accounts Telemetry Spreadsheet (.CSV)</h3>
+                  <p className="text-xs text-slate-400">Upload CSV file to run AI churn analysis, evaluate risk metrics, and trigger Camunda 7 BPMN workflows.</p>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Company / Customer Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Vodacom South Africa"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
-                  required
-                />
-              </div>
+                  <div className="flex flex-wrap items-center gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleLoadDemoCSV}
+                      disabled={batchProcessing}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50"
+                    >
+                      ⚡ Load Demo CIB Batch CSV
+                    </button>
+                    <label className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-md">
+                      📂 Choose CSV File...
+                      <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
+                    </label>
+                    <a
+                      href="/cib_corporate_accounts_batch.csv"
+                      download="cib_corporate_accounts_batch.csv"
+                      className="px-3 py-2 border border-slate-700 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-medium transition-all"
+                    >
+                      📥 Sample CSV Template
+                    </a>
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Corporate Email</label>
-                <input
-                  type="email"
-                  placeholder="e.g. treasury@vodacom.co.za"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
-                  required
-                />
-              </div>
+                {batchProcessing && (
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-300 text-xs flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span>Analyzing spreadsheet rows, calculating health scores, and launching Camunda 7 BPMN workflows...</span>
+                  </div>
+                )}
 
-              <div className="grid grid-cols-2 gap-4">
+                {batchResult && (
+                  <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                      <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Spreadsheet AI Analysis Summary</span>
+                      <span className="text-xs text-slate-400">{batchResult.summaryMessage}</span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div className="p-2 bg-slate-950 rounded-lg border border-slate-800">
+                        <div className="text-xs text-slate-400">Total Accounts</div>
+                        <div className="text-lg font-bold text-slate-100">{batchResult.totalImported}</div>
+                      </div>
+                      <div className="p-2 bg-slate-950 rounded-lg border border-slate-800">
+                        <div className="text-xs text-slate-400">At Risk Flagged</div>
+                        <div className="text-lg font-bold text-rose-400">{batchResult.atRiskCount}</div>
+                      </div>
+                      <div className="p-2 bg-slate-950 rounded-lg border border-slate-800">
+                        <div className="text-xs text-slate-400">Workflows Launched</div>
+                        <div className="text-lg font-bold text-indigo-400">{batchResult.workflowsLaunched}</div>
+                      </div>
+                    </div>
+
+                    <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-800">
+                      <table className="w-full text-left text-xs text-slate-300">
+                        <thead className="bg-slate-950 text-slate-400 sticky top-0">
+                          <tr>
+                            <th className="p-2">Ext ID</th>
+                            <th className="p-2">Account Name</th>
+                            <th className="p-2">Health</th>
+                            <th className="p-2">Risk</th>
+                            <th className="p-2">BPMN Workflow Launched</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800 bg-slate-900">
+                          {batchResult.accounts.map((acc: any, i: number) => (
+                            <tr key={i}>
+                              <td className="p-2 font-mono text-slate-400">{acc.externalCustomerId}</td>
+                              <td className="p-2 font-semibold text-slate-100">{acc.customerName}</td>
+                              <td className={`p-2 font-bold ${acc.healthScore < 50 ? 'text-rose-400' : 'text-emerald-400'}`}>{acc.healthScore}/100</td>
+                              <td className={`p-2 font-bold ${acc.churnProbability > 50 ? 'text-rose-400' : 'text-slate-300'}`}>{acc.churnProbability}%</td>
+                              <td className="p-2 font-medium text-indigo-300">{acc.launchedWorkflowKey} ({acc.workflowInstanceId})</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <form onSubmit={handleImportSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">MRR (ZAR)</label>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">External Customer ID</label>
                   <input
-                    type="number"
-                    value={formData.mrr}
-                    onChange={(e) => setFormData({ ...formData, mrr: Number(e.target.value) })}
+                    type="text"
+                    placeholder="e.g. SB-CIB-1007"
+                    value={formData.externalCustomerId}
+                    onChange={(e) => setFormData({ ...formData, externalCustomerId: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">ARR (ZAR)</label>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Company / Customer Name</label>
                   <input
-                    type="number"
-                    value={formData.arr}
-                    onChange={(e) => setFormData({ ...formData, arr: Number(e.target.value) })}
+                    type="text"
+                    placeholder="e.g. Vodacom South Africa"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
                     required
                   />
                 </div>
-              </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark-border">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-dark-border rounded-lg text-slate-400 hover:text-slate-200 text-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={importing}
-                  className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-semibold text-sm flex items-center gap-2 disabled:opacity-50"
-                >
-                  <Save size={16} /> {importing ? 'Saving to DB...' : 'Save to Database'}
-                </button>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Corporate Email</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. treasury@vodacom.co.za"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">MRR (ZAR)</label>
+                    <input
+                      type="number"
+                      value={formData.mrr}
+                      onChange={(e) => setFormData({ ...formData, mrr: Number(e.target.value) })}
+                      className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">ARR (ZAR)</label>
+                    <input
+                      type="number"
+                      value={formData.arr}
+                      onChange={(e) => setFormData({ ...formData, arr: Number(e.target.value) })}
+                      className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-dark-border">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 border border-dark-border rounded-lg text-slate-400 hover:text-slate-200 text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={importing}
+                    className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-semibold text-sm flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <Save size={16} /> {importing ? 'Saving to DB...' : 'Save to Database'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
