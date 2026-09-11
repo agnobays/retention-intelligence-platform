@@ -23,9 +23,12 @@ public class DetectionEngineService {
 
     private final CustomerRepository customerRepository;
     private final AtRiskMetricRepository atRiskMetricRepository;
-    private final WorkflowService workflowService;
 
     public DetectionDTO runDetectionForCustomer(UUID customerId) {
+        return runDetectionForCustomerInternal(customerId);
+    }
+
+    public DetectionDTO runDetectionForCustomerInternal(UUID customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with ID: " + customerId));
 
@@ -60,18 +63,12 @@ public class DetectionEngineService {
 
         if (updatedHealthScore < 60 || updatedChurnProb.doubleValue() > 50.0) {
             customer.setStatus("AT_RISK");
-            
-            // 1. Auto-trigger CustomerRecoveryProcess in Camunda
-            workflowService.startRecoveryWorkflow(customerId);
-
-            // 2. If Critical Risk & High Value ARR >= R 2,000,000 -> Auto-trigger ExecutiveEscalationProcess
-            if (updatedChurnProb.doubleValue() >= 75.0 && customer.getArr() != null && customer.getArr().doubleValue() >= 2000000) {
-                log.info("🔥 CRITICAL RISK DETECTED for Tier 1 Enterprise Client {}. Auto-triggering ExecutiveEscalationProcess", customer.getName());
-                workflowService.startExecutiveEscalationWorkflow(customerId);
-            }
         }
 
         customerRepository.save(customer);
+
+        log.info("Evaluated risk detection for customer {}: Status={}, HealthScore={}, ChurnProb={}%",
+                customer.getName(), customer.getStatus(), updatedHealthScore, updatedChurnProb);
 
         return DetectionDTO.builder()
                 .customerId(customerId)
