@@ -1,0 +1,7 @@
+externalCustomerId,name,email,mrr,arr,healthScore,churnProbability,status,metricType,severity
+SB-CIB-2001,Woolworths South Africa Corporate,finance@woolworths.co.za,450000.00,5400000.00,38,84.50,AT_RISK,TRANSACTION_VOLUME_DROP_45_PCT,CRITICAL
+SB-CIB-2002,Nedbank Corporate & Investment,treasury@nedbank.co.za,620000.00,7440000.00,41,79.20,AT_RISK,HIGH_ESCALATED_SUPPORT_TICKETS,HIGH
+SB-CIB-2003,FirstRand Group Treasury,payments@firstrand.co.za,510000.00,6120000.00,85,14.00,ACTIVE,NORMAL_TELEMETRY,LOW
+SB-CIB-2004,Pick n Pay Enterprise Services,treasury@pnp.co.za,280000.00,3360000.00,34,88.10,AT_RISK,NPS_DETRACTOR_SCORE,CRITICAL
+SB-CIB-2005,Discovery Health Corporate,corporate@discovery.co.za,390000.00,4680000.00,48,72.00,AT_RISK,CREDIT_LINE_DRAWDOWN_REDUCTION,HIGH
+SB-CIB-2006,Sanlam Life Insurance,finance@sanlam.co.za,410000.00,4920000.00,92,6.50,ACTIVE,NORMAL_TELEMETRY,LOW

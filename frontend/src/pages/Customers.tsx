@@ -78,6 +78,56 @@ export const Customers: React.FC = () => {
       c.externalCustomerId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const [batchResult, setBatchResult] = useState<any | null>(null);
+  const [batchProcessing, setBatchProcessing] = useState(false);
+
+  const handleProcessCSVText = async (csvText: string) => {
+    try {
+      setBatchProcessing(true);
+      setActionMsg(null);
+      setBatchResult(null);
+
+      const parsedRows = customerService.parseCSVText(csvText);
+      if (parsedRows.length === 0) {
+        setActionMsg('CSV file is empty or invalid format.');
+        return;
+      }
+
+      const result = await customerService.importSpreadsheetBatch(parsedRows);
+      setBatchResult(result);
+      setActionMsg(`🎉 Batch Spreadsheet Analyzed! ${result.totalImported} accounts imported, ${result.workflowsLaunched} Camunda BPMN workflows launched.`);
+      await fetchCustomers();
+    } catch (err) {
+      setActionMsg('Failed to process batch spreadsheet import.');
+    } finally {
+      setBatchProcessing(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        handleProcessCSVText(content);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleLoadDemoCSV = () => {
+    const demoCSV = `externalCustomerId,name,email,mrr,arr,healthScore,churnProbability,status
+SB-CIB-2001,Woolworths South Africa Corporate,finance@woolworths.co.za,450000.00,5400000.00,38,84.50,AT_RISK
+SB-CIB-2002,Nedbank Corporate & Investment,treasury@nedbank.co.za,620000.00,7440000.00,41,79.20,AT_RISK
+SB-CIB-2003,FirstRand Group Treasury,payments@firstrand.co.za,510000.00,6120000.00,85,14.00,ACTIVE
+SB-CIB-2004,Pick n Pay Enterprise Services,treasury@pnp.co.za,280000.00,3360000.00,34,88.10,AT_RISK
+SB-CIB-2005,Discovery Health Corporate,corporate@discovery.co.za,390000.00,4680000.00,48,72.00,AT_RISK
+SB-CIB-2006,Sanlam Life Insurance,finance@sanlam.co.za,410000.00,4920000.00,92,6.50,ACTIVE`;
+    handleProcessCSVText(demoCSV);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -85,12 +135,14 @@ export const Customers: React.FC = () => {
           <h1 className="text-2xl font-bold text-slate-100">Standard Bank CIB Customer Accounts</h1>
           <p className="text-sm text-slate-400">Monitored corporate accounts, health scores, and telemetry status</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-medium text-sm flex items-center gap-2 shadow-lg shadow-brand-600/20"
-        >
-          <Plus size={16} /> Import Customer Telemetry
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-medium text-sm flex items-center gap-2 shadow-lg shadow-brand-600/20"
+          >
+            <Plus size={16} /> Add Single Account
+          </button>
+        </div>
       </div>
 
       {actionMsg && (
@@ -98,6 +150,96 @@ export const Customers: React.FC = () => {
           {actionMsg}
         </div>
       )}
+
+      {/* Spreadsheet Batch Import Control Panel */}
+      <Card title="📄 Spreadsheet Batch Import & AI Camunda Workflow Trigger">
+        <div className="p-4 bg-indigo-950/30 border border-indigo-500/30 rounded-xl space-y-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-100">Import Corporate Accounts Spreadsheet (.CSV)</h3>
+              <p className="text-xs text-slate-400">Upload corporate telemetry metrics. The system automatically analyzes churn risk, updates database records, and triggers corresponding Camunda 7 BPMN workflows.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleLoadDemoCSV}
+                disabled={batchProcessing}
+                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md disabled:opacity-50"
+              >
+                ⚡ Load Demo CIB Batch CSV
+              </button>
+              <label className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-md">
+                📂 Choose CSV File...
+                <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
+              </label>
+              <a
+                href="/cib_corporate_accounts_batch.csv"
+                download="cib_corporate_accounts_batch.csv"
+                className="px-3 py-2 border border-slate-700 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-medium transition-all"
+              >
+                📥 Sample CSV Template
+              </a>
+            </div>
+          </div>
+
+          {batchProcessing && (
+            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-300 text-xs flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+              <span>Analyzing spreadsheet rows, calculating health scores, and launching Camunda 7 BPMN workflows...</span>
+            </div>
+          )}
+
+          {batchResult && (
+            <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-xl space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Spreadsheet AI Analysis Summary</span>
+                <span className="text-xs text-slate-400">{batchResult.summaryMessage}</span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="p-2 bg-slate-950 rounded-lg border border-slate-800">
+                  <div className="text-xs text-slate-400">Total Accounts</div>
+                  <div className="text-lg font-bold text-slate-100">{batchResult.totalImported}</div>
+                </div>
+                <div className="p-2 bg-slate-950 rounded-lg border border-slate-800">
+                  <div className="text-xs text-slate-400">At Risk Flagged</div>
+                  <div className="text-lg font-bold text-rose-400">{batchResult.atRiskCount}</div>
+                </div>
+                <div className="p-2 bg-slate-950 rounded-lg border border-slate-800">
+                  <div className="text-xs text-slate-400">Camunda Workflows Launched</div>
+                  <div className="text-lg font-bold text-indigo-400">{batchResult.workflowsLaunched}</div>
+                </div>
+              </div>
+
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-slate-800">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-slate-950 text-slate-400 sticky top-0">
+                    <tr>
+                      <th className="p-2">Ext ID</th>
+                      <th className="p-2">Account Name</th>
+                      <th className="p-2">Health</th>
+                      <th className="p-2">Churn Risk</th>
+                      <th className="p-2">Status</th>
+                      <th className="p-2">Launched Camunda BPMN Workflow</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 bg-slate-900">
+                    {batchResult.accounts.map((acc: any, i: number) => (
+                      <tr key={i}>
+                        <td className="p-2 font-mono text-slate-400">{acc.externalCustomerId}</td>
+                        <td className="p-2 font-semibold text-slate-100">{acc.customerName}</td>
+                        <td className={`p-2 font-bold ${acc.healthScore < 50 ? 'text-rose-400' : 'text-emerald-400'}`}>{acc.healthScore}/100</td>
+                        <td className={`p-2 font-bold ${acc.churnProbability > 50 ? 'text-rose-400' : 'text-slate-300'}`}>{acc.churnProbability}%</td>
+                        <td className="p-2"><Badge status={acc.status} /></td>
+                        <td className="p-2 font-medium text-indigo-300">{acc.launchedWorkflowKey} ({acc.workflowInstanceId})</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
 
       {/* Import Modal */}
       {isModalOpen && (

@@ -1,0 +1,4 @@
+externalCustomerId,name,email,mrr,arr,healthScore,churnProbability,status,metricType,severity
+SB-CIB-3001,Naspers Corporate Finance,treasury@naspers.com,890000.00,10680000.00,32,91.40,AT_RISK,CRITICAL_MERCHANT_SETTLEMENT_DELAY,CRITICAL
+SB-CIB-3002,Vodacom Business Group,enterprise@vodacom.co.za,750000.00,9000000.00,45,76.80,AT_RISK,API_INTEGRATION_TIMEOUTS,HIGH
+SB-CIB-3003,Multichoice Group,finance@multichoice.co.za,520000.00,6240000.00,89,11.20,ACTIVE,NORMAL_TELEMETRY,LOW

@@ -47,4 +47,13 @@ public class CustomerController {
         log.info("================================================================================");
         return ResponseEntity.ok(customerService.importCustomer(dto));
     }
+
+    @PostMapping({"/import-batch", "/batch-import", "/import-spreadsheet"})
+    @Operation(summary = "Import Spreadsheet Corporate Accounts", description = "Analyzes batch corporate CSV rows, evaluates churn risk, and auto-triggers Camunda 7 BPMN workflows")
+    public ResponseEntity<com.retention.intelligence.dto.BatchImportResultDTO> importSpreadsheetBatch(@RequestBody List<CustomerDTO> batchList) {
+        log.info("================================================================================");
+        log.info("📥 API REQUEST: POST /api/v1/customers/import-batch - Analyzing {} spreadsheet rows", batchList != null ? batchList.size() : 0);
+        log.info("================================================================================");
+        return ResponseEntity.ok(customerService.processBatchSpreadsheetImport(batchList != null ? batchList : List.of()));
+    }
 }
