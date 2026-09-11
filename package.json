@@ -1,0 +1,8 @@
+{
+  "name": "retention-service-system",
+  "version": "1.0.1",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  }
+}
