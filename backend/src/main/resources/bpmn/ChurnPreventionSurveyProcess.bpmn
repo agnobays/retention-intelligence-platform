@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_ChurnPreventionSurveyProcess"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.0.0">
+  <bpmn:process id="ChurnPreventionSurveyProcess" name="Churn Prevention Health Survey Process" isExecutable="true" camunda:historyTimeToLive="P180D">
+    
+    <!-- Start Event -->
+    <bpmn:startEvent id="StartEvent_RecoveryExecuted" name="Recovery Executed">
+      <bpmn:outgoing>Flow_S1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- 1. Send Health Survey Email -->
+    <bpmn:serviceTask id="Task_SendHealthSurveyEmail" name="Send Health Survey Email" camunda:expression="${true}">
+      <bpmn:incoming>Flow_S1</bpmn:incoming>
+      <bpmn:outgoing>Flow_S2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- 2. Wait for Customer Survey Feedback -->
+    <bpmn:userTask id="Task_ReceiveSurveyFeedback" name="Receive Survey Feedback">
+      <bpmn:incoming>Flow_S2</bpmn:incoming>
+      <bpmn:outgoing>Flow_S3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- 3. Update NPS & Health Metrics -->
+    <bpmn:serviceTask id="Task_UpdateNPSMetrics" name="Update NPS &amp; Health Metrics" camunda:expression="${true}">
+      <bpmn:incoming>Flow_S3</bpmn:incoming>
+      <bpmn:outgoing>Flow_S4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- End Event -->
+    <bpmn:endEvent id="EndEvent_SurveyCompleted" name="Survey Completed">
+      <bpmn:incoming>Flow_S4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_S1" sourceRef="StartEvent_RecoveryExecuted" targetRef="Task_SendHealthSurveyEmail" />
+    <bpmn:sequenceFlow id="Flow_S2" sourceRef="Task_SendHealthSurveyEmail" targetRef="Task_ReceiveSurveyFeedback" />
+    <bpmn:sequenceFlow id="Flow_S3" sourceRef="Task_ReceiveSurveyFeedback" targetRef="Task_UpdateNPSMetrics" />
+    <bpmn:sequenceFlow id="Flow_S4" sourceRef="Task_UpdateNPSMetrics" targetRef="EndEvent_SurveyCompleted" />
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ChurnPreventionSurveyProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_ChurnPreventionSurveyProcess" bpmnElement="ChurnPreventionSurveyProcess">
+      
+      <bpmndi:BPMNShape id="Shape_StartEvent_RecoveryExecuted" bpmnElement="StartEvent_RecoveryExecuted">
+        <dc:Bounds x="180" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="165" y="143" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_SendHealthSurveyEmail" bpmnElement="Task_SendHealthSurveyEmail">
+        <dc:Bounds x="270" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_ReceiveSurveyFeedback" bpmnElement="Task_ReceiveSurveyFeedback">
+        <dc:Bounds x="430" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_UpdateNPSMetrics" bpmnElement="Task_UpdateNPSMetrics">
+        <dc:Bounds x="590" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_EndEvent_SurveyCompleted" bpmnElement="EndEvent_SurveyCompleted">
+        <dc:Bounds x="750" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="143" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_S1" bpmnElement="Flow_S1">
+        <di:waypoint x="216" y="118" />
+        <di:waypoint x="270" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_S2" bpmnElement="Flow_S2">
+        <di:waypoint x="370" y="118" />
+        <di:waypoint x="430" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_S3" bpmnElement="Flow_S3">
+        <di:waypoint x="530" y="118" />
+        <di:waypoint x="590" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_S4" bpmnElement="Flow_S4">
+        <di:waypoint x="690" y="118" />
+        <di:waypoint x="750" y="118" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_ExecutiveEscalationProcess"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler"
+                  exporterVersion="5.0.0">
+  <bpmn:process id="ExecutiveEscalationProcess" name="Executive CIB Escalation Process" isExecutable="true" camunda:historyTimeToLive="P180D">
+    
+    <!-- Start Event -->
+    <bpmn:startEvent id="StartEvent_CriticalRiskDetected" name="Critical Risk Detected">
+      <bpmn:outgoing>Flow_E1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- 1. Notify CIB Executive VP -->
+    <bpmn:serviceTask id="Task_NotifyExecutiveVP" name="Notify CIB Executive Vice President" camunda:expression="${true}">
+      <bpmn:incoming>Flow_E1</bpmn:incoming>
+      <bpmn:outgoing>Flow_E2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- 2. Executive Concession Review User Task -->
+    <bpmn:userTask id="Task_ExecutiveConcessionReview" name="Executive Concession Review">
+      <bpmn:incoming>Flow_E2</bpmn:incoming>
+      <bpmn:outgoing>Flow_E3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- 3. Dispatch Custom FX & Fee Package -->
+    <bpmn:serviceTask id="Task_DispatchCustomPackage" name="Dispatch Custom FX &amp; Fee Package" camunda:expression="${true}">
+      <bpmn:incoming>Flow_E3</bpmn:incoming>
+      <bpmn:outgoing>Flow_E4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- End Event -->
+    <bpmn:endEvent id="EndEvent_EscalationResolved" name="Escalation Resolved">
+      <bpmn:incoming>Flow_E4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_E1" sourceRef="StartEvent_CriticalRiskDetected" targetRef="Task_NotifyExecutiveVP" />
+    <bpmn:sequenceFlow id="Flow_E2" sourceRef="Task_NotifyExecutiveVP" targetRef="Task_ExecutiveConcessionReview" />
+    <bpmn:sequenceFlow id="Flow_E3" sourceRef="Task_ExecutiveConcessionReview" targetRef="Task_DispatchCustomPackage" />
+    <bpmn:sequenceFlow id="Flow_E4" sourceRef="Task_DispatchCustomPackage" targetRef="EndEvent_EscalationResolved" />
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ExecutiveEscalationProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_ExecutiveEscalationProcess" bpmnElement="ExecutiveEscalationProcess">
+      
+      <bpmndi:BPMNShape id="Shape_StartEvent_CriticalRiskDetected" bpmnElement="StartEvent_CriticalRiskDetected">
+        <dc:Bounds x="180" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="165" y="143" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_NotifyExecutiveVP" bpmnElement="Task_NotifyExecutiveVP">
+        <dc:Bounds x="270" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_ExecutiveConcessionReview" bpmnElement="Task_ExecutiveConcessionReview">
+        <dc:Bounds x="430" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Task_DispatchCustomPackage" bpmnElement="Task_DispatchCustomPackage">
+        <dc:Bounds x="590" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_EndEvent_EscalationResolved" bpmnElement="EndEvent_EscalationResolved">
+        <dc:Bounds x="750" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="143" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_E1" bpmnElement="Flow_E1">
+        <di:waypoint x="216" y="118" />
+        <di:waypoint x="270" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_E2" bpmnElement="Flow_E2">
+        <di:waypoint x="370" y="118" />
+        <di:waypoint x="430" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_E3" bpmnElement="Flow_E3">
+        <di:waypoint x="530" y="118" />
+        <di:waypoint x="590" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_E4" bpmnElement="Flow_E4">
+        <di:waypoint x="690" y="118" />
+        <di:waypoint x="750" y="118" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>
