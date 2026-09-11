@@ -113,8 +113,10 @@ public class CustomerService {
                 }
             }
 
-            log.info("✅ Imported Row: Account={}, ExternalID={}, Status={}, ChurnProb={}% -> Launched BPMN: {} ({})",
-                    imported.getName(), imported.getExternalCustomerId(), imported.getStatus(), churnProb, workflowKey, instanceId);
+            log.info("  ├─ CLIENT ID       : {}", imported.getExternalCustomerId());
+            log.info("  ├─ CLIENT DETAILS  : Name='{}', Email='{}', ARR=R{}, HealthScore={}, ChurnProb={}%",
+                    imported.getName(), imported.getEmail(), imported.getArr(), health, churnProb);
+            log.info("  └─ WORKFLOW/MESSAGE: Launched BPMN Workflow '{}' (Instance ID: {})", workflowKey, instanceId);
 
             processedAccounts.add(new BatchImportResultDTO.ProcessedAccountDTO(
                     imported.getExternalCustomerId(),

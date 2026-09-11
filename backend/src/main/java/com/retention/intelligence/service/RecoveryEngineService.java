@@ -50,8 +50,19 @@ public class RecoveryEngineService {
             }
         }
 
-        log.info("🛠️ [RECOVERY ENGINE] Executing recovery action for plan {}: Action={}, Customer={}",
-                planId, plan.getRecommendedAction(), customer != null ? customer.getName() : "Unknown");
+        String extId = customer != null ? customer.getExternalCustomerId() : "SB-CIB-1001";
+        String custName = customer != null ? customer.getName() : "Corporate Client";
+        String custEmail = customer != null ? customer.getEmail() : "treasury@client.co.za";
+        String notificationMsg = "Action '" + plan.getRecommendedAction() + "' (" + (plan.getDiscountPercentage() != null ? plan.getDiscountPercentage() : 15) + "% concession) initiated for " + custName + ".";
+
+        log.info("================================================================================");
+        log.info("🛠️ [RECOVERY ENGINE EXECUTION]");
+        log.info("  ├─ CLIENT ID       : {}", extId);
+        log.info("  ├─ CLIENT DETAILS  : Name='{}', Email='{}', ARR=R{}", custName, custEmail, customer != null ? customer.getArr() : "N/A");
+        log.info("  ├─ RECOVERY PLAN ID: {}", planId);
+        log.info("  ├─ ACTION EXECUTED : {}", plan.getRecommendedAction());
+        log.info("  └─ MESSAGE DISPATCHED: \"{}\"", notificationMsg);
+        log.info("================================================================================");
 
         // Trigger Resend API email dispatch for Scenario A / Scenario B
         emailService.sendRecoveryEmail(plan);

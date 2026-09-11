@@ -57,12 +57,15 @@ public class EmailService {
         htmlContent = buildTier1EmailTemplate(customerName, externalId != null ? externalId : "SB-CIB-1001", discount, action != null ? action : "Approved Concession");
 
         log.info("================================================================================");
-        log.info("📧 DISPATCHING RETENTION EMAIL IMMEDIATELY");
-        log.info("From: Standard Bank CIB <{}>", fromEmail);
-        log.info("To Recipient: {}", toEmail);
-        log.info("Subject: {}", subject);
-        log.info("Customer Name: {}", customerName);
-        log.info("Discount Concession: {}%", discount);
+        log.info("📧 [RETENTION EMAIL DISPATCH]");
+        log.info("  ├─ CLIENT ID       : {}", externalId != null ? externalId : "SB-CIB-1001");
+        log.info("  ├─ CLIENT DETAILS  : Name='{}', RecipientEmail='{}'", customerName, toEmail);
+        log.info("  ├─ SENDER          : Standard Bank CIB <{}>", fromEmail);
+        log.info("  ├─ SUBJECT         : {}", subject);
+        log.info("  ├─ CONCESSION OFFER: {} ({}% Fee Concession)", action, discount);
+        log.info("  └─ MESSAGE SENT    : \"Dear Treasury & Corporate Finance Team at {} ({}), Following our automated risk intelligence review, Standard Bank CIB has authorized a dedicated corporate retention strategy: Approved Concession: {} with a {}% fee concession. Senior CIB Relationship Manager (Sipho Dlamini) assigned.\"", 
+                customerName, externalId != null ? externalId : "SB-CIB-1001", action, discount);
+        log.info("================================================================================");
 
         boolean apiSuccess = false;
         if (resendApiKey != null && resendApiKey.startsWith("re_") && !resendApiKey.equals("re_demo_key")) {
