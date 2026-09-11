@@ -98,4 +98,136 @@
     <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_CloseRecoveryCase" targetRef="EndEvent_CaseClosed" />
 
   </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_CustomerRecoveryProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_CustomerRecoveryProcess" bpmnElement="CustomerRecoveryProcess">
+      
+      <!-- Start Event Shape -->
+      <bpmndi:BPMNShape id="Shape_StartEvent_CustomerImported" bpmnElement="StartEvent_CustomerImported">
+        <dc:Bounds x="160" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="143" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Run Detection Engine -->
+      <bpmndi:BPMNShape id="Shape_Task_RunDetectionEngine" bpmnElement="Task_RunDetectionEngine">
+        <dc:Bounds x="250" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Evaluate Customer Value -->
+      <bpmndi:BPMNShape id="Shape_Task_EvaluateCustomerValue" bpmnElement="Task_EvaluateCustomerValue">
+        <dc:Bounds x="400" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Recommend Recovery Action -->
+      <bpmndi:BPMNShape id="Shape_Task_RecommendRecoveryAction" bpmnElement="Task_RecommendRecoveryAction">
+        <dc:Bounds x="550" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- Gateway: Manager Approval -->
+      <bpmndi:BPMNShape id="Shape_Gateway_ManagerApproval" bpmnElement="Gateway_ManagerApproval" isMarkerVisible="true">
+        <dc:Bounds x="700" y="93" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="56" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Manager Approval -->
+      <bpmndi:BPMNShape id="Shape_Task_ManagerApproval" bpmnElement="Task_ManagerApproval">
+        <dc:Bounds x="800" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- Gateway: Join -->
+      <bpmndi:BPMNShape id="Shape_Gateway_Join" bpmnElement="Gateway_Join" isMarkerVisible="true">
+        <dc:Bounds x="950" y="93" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Execute Recovery Action -->
+      <bpmndi:BPMNShape id="Shape_Task_ExecuteRecoveryAction" bpmnElement="Task_ExecuteRecoveryAction">
+        <dc:Bounds x="1050" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- Catch Event: Wait for Outcome -->
+      <bpmndi:BPMNShape id="Shape_Event_WaitForOutcome" bpmnElement="Event_WaitForOutcome">
+        <dc:Bounds x="1200" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1176" y="143" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Close Recovery Case -->
+      <bpmndi:BPMNShape id="Shape_Task_CloseRecoveryCase" bpmnElement="Task_CloseRecoveryCase">
+        <dc:Bounds x="1280" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+
+      <!-- End Event Shape -->
+      <bpmndi:BPMNShape id="Shape_EndEvent_CaseClosed" bpmnElement="EndEvent_CaseClosed">
+        <dc:Bounds x="1430" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1417" y="143" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Edges / Sequence Flows -->
+      <bpmndi:BPMNEdge id="Edge_Flow_1" bpmnElement="Flow_1">
+        <di:waypoint x="196" y="118" />
+        <di:waypoint x="250" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_2" bpmnElement="Flow_2">
+        <di:waypoint x="350" y="118" />
+        <di:waypoint x="400" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_3" bpmnElement="Flow_3">
+        <di:waypoint x="500" y="118" />
+        <di:waypoint x="550" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_4" bpmnElement="Flow_4">
+        <di:waypoint x="650" y="118" />
+        <di:waypoint x="700" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_ManagerApproval" bpmnElement="Flow_ManagerApproval">
+        <di:waypoint x="725" y="143" />
+        <di:waypoint x="725" y="220" />
+        <di:waypoint x="800" y="220" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_AutoApprove" bpmnElement="Flow_AutoApprove">
+        <di:waypoint x="750" y="118" />
+        <di:waypoint x="950" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_5" bpmnElement="Flow_5">
+        <di:waypoint x="900" y="220" />
+        <di:waypoint x="975" y="220" />
+        <di:waypoint x="975" y="143" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_6" bpmnElement="Flow_6">
+        <di:waypoint x="1000" y="118" />
+        <di:waypoint x="1050" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_7" bpmnElement="Flow_7">
+        <di:waypoint x="1150" y="118" />
+        <di:waypoint x="1200" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_8" bpmnElement="Flow_8">
+        <di:waypoint x="1236" y="118" />
+        <di:waypoint x="1280" y="118" />
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_9" bpmnElement="Flow_9">
+        <di:waypoint x="1380" y="118" />
+        <di:waypoint x="1430" y="118" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
 </bpmn:definitions>
