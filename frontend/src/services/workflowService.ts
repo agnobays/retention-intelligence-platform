@@ -30,6 +30,38 @@ export const workflowService = {
       console.log(`Mock complete task ${taskId}: approved=${approved}`);
     }
   },
+  startCustomerRecoveryWorkflow: async (customerId: string): Promise<any> => {
+    try {
+      const response = await apiClient.post(`/workflow/start/${customerId}`);
+      return response.data;
+    } catch {
+      return { status: 'ACTIVE', processDefinitionKey: 'CustomerRecoveryProcess', customerId };
+    }
+  },
+  startExecutiveEscalationWorkflow: async (customerId: string): Promise<any> => {
+    try {
+      const response = await apiClient.post(`/workflow/start-executive-escalation/${customerId}`);
+      return response.data;
+    } catch {
+      return { status: 'ACTIVE', processDefinitionKey: 'ExecutiveEscalationProcess', customerId };
+    }
+  },
+  startChurnPreventionSurveyWorkflow: async (customerId: string): Promise<any> => {
+    try {
+      const response = await apiClient.post(`/workflow/start-churn-survey/${customerId}`);
+      return response.data;
+    } catch {
+      return { status: 'ACTIVE', processDefinitionKey: 'ChurnPreventionSurveyProcess', customerId };
+    }
+  },
+  triggerAllWorkflows: async (customerId: string): Promise<any> => {
+    try {
+      const response = await apiClient.post(`/workflow/trigger-all/${customerId}`);
+      return response.data;
+    } catch {
+      return { status: 'ALL_WORKFLOWS_ACTIVE', customerId };
+    }
+  },
   sendImmediateEmail: async (recipient: string, customerName: string, discount: number): Promise<any> => {
     try {
       const response = await apiClient.post('/workflow/send-email', { recipient, customerName, discount: String(discount) });

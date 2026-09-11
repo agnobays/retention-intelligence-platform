@@ -35,6 +35,42 @@ public class WorkflowController {
         return ResponseEntity.ok(workflowService.startRecoveryWorkflow(customerId));
     }
 
+    @PostMapping("/start-executive-escalation/{customerId}")
+    @Operation(summary = "Start Executive Escalation Camunda Workflow", description = "Launches Camunda ExecutiveEscalationProcess workflow instance")
+    public ResponseEntity<WorkflowDTO> startExecutiveEscalationWorkflow(@PathVariable UUID customerId) {
+        log.info("================================================================================");
+        log.info("⚡ API REQUEST: POST /api/v1/workflow/start-executive-escalation/{} - LAUNCHING TIER 1 ESCALATION", customerId);
+        log.info("================================================================================");
+        return ResponseEntity.ok(workflowService.startExecutiveEscalationWorkflow(customerId));
+    }
+
+    @PostMapping("/start-churn-survey/{customerId}")
+    @Operation(summary = "Start Churn Prevention Survey Camunda Workflow", description = "Launches Camunda ChurnPreventionSurveyProcess workflow instance")
+    public ResponseEntity<WorkflowDTO> startChurnPreventionSurveyWorkflow(@PathVariable UUID customerId) {
+        log.info("================================================================================");
+        log.info("📊 API REQUEST: POST /api/v1/workflow/start-churn-survey/{} - LAUNCHING SURVEY WORKFLOW", customerId);
+        log.info("================================================================================");
+        return ResponseEntity.ok(workflowService.startChurnPreventionSurveyWorkflow(customerId));
+    }
+
+    @PostMapping("/trigger-all/{customerId}")
+    @Operation(summary = "Trigger All 3 Camunda Workflows", description = "Launches all 3 Camunda BPMN workflows in sequence")
+    public ResponseEntity<Map<String, Object>> triggerAllWorkflows(@PathVariable UUID customerId) {
+        log.info("================================================================================");
+        log.info("🚀⚡📊 API REQUEST: POST /api/v1/workflow/trigger-all/{} - LAUNCHING ALL 3 CAMUNDA WORKFLOWS", customerId);
+        log.info("================================================================================");
+        WorkflowDTO wf1 = workflowService.startRecoveryWorkflow(customerId);
+        WorkflowDTO wf2 = workflowService.startExecutiveEscalationWorkflow(customerId);
+        WorkflowDTO wf3 = workflowService.startChurnPreventionSurveyWorkflow(customerId);
+
+        return ResponseEntity.ok(Map.of(
+            "status", "ALL_WORKFLOWS_ACTIVE",
+            "customerRecoveryProcess", wf1,
+            "executiveEscalationProcess", wf2,
+            "churnPreventionSurveyProcess", wf3
+        ));
+    }
+
     @GetMapping({"/tasks", "/tasks/pending"})
     @Operation(summary = "Get Pending Manager Approval User Tasks", description = "Retrieves all active Camunda user tasks waiting for manager approval")
     public ResponseEntity<List<WorkflowDTO>> getPendingManagerTasks() {

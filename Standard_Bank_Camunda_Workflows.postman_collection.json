@@ -1,0 +1,253 @@
+{
+	"info": {
+		"_postman_id": "a9847120-7b23-451a-9821-standardbank01",
+		"name": "Standard Bank CIB - Camunda 7 BPMN Workflows",
+		"description": "Collection to trigger and inspect Camunda 7 BPMN Customer Recovery Workflows on Render backend (https://retention-intelligence-backend.onrender.com).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Trigger Customer Recovery Process (BPMN Workflow 1)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/workflow/start/a1111111-1111-1111-1111-111111111111",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"workflow",
+						"start",
+						"a1111111-1111-1111-1111-111111111111"
+					]
+				},
+				"description": "Launches CustomerRecoveryProcess in Camunda engine for Shoprite Holdings Ltd (a1111111-1111-1111-1111-111111111111)"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Trigger Executive Escalation Process (BPMN Workflow 2)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/workflow/start-executive-escalation/a1111111-1111-1111-1111-111111111111",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"workflow",
+						"start-executive-escalation",
+						"a1111111-1111-1111-1111-111111111111"
+					]
+				},
+				"description": "Launches ExecutiveEscalationProcess in Camunda engine for Tier 1 Enterprise Account"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Trigger Churn Prevention Survey Process (BPMN Workflow 3)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/workflow/start-churn-survey/a1111111-1111-1111-1111-111111111111",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"workflow",
+						"start-churn-survey",
+						"a1111111-1111-1111-1111-111111111111"
+					]
+				},
+				"description": "Launches ChurnPreventionSurveyProcess in Camunda engine for Shoprite Holdings Ltd"
+			},
+			"response": []
+		},
+		{
+			"name": "4. Trigger ALL 3 Camunda Workflows At Once",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/workflow/trigger-all/a1111111-1111-1111-1111-111111111111",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"workflow",
+						"trigger-all",
+						"a1111111-1111-1111-1111-111111111111"
+					]
+				},
+				"description": "Fires all 3 Camunda BPMN workflows in sequence for Shoprite Holdings Ltd"
+			},
+			"response": []
+		},
+		{
+			"name": "5. Query Pending Manager User Tasks in Camunda",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/workflow/tasks/pending",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"workflow",
+						"tasks",
+						"pending"
+					]
+				},
+				"description": "Queries all active Camunda user tasks waiting for manager approval"
+			},
+			"response": []
+		},
+		{
+			"name": "6. Complete Manager Task (Approve Retention Plan)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"approved\": true\n}"
+				},
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/workflow/tasks/complete/task-101",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"workflow",
+						"tasks",
+						"complete",
+						"task-101"
+					]
+				},
+				"description": "Completes Camunda user task and triggers Resend API email dispatch"
+			},
+			"response": []
+		},
+		{
+			"name": "7. Send Direct Test Email (Resend API)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"recipient\": \"zolani1999@gmail.com\",\n  \"customerName\": \"Shoprite Holdings Ltd\",\n  \"discount\": 15\n}"
+				},
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/workflow/test-email",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"workflow",
+						"test-email"
+					]
+				},
+				"description": "Sends instant retention email concession notice directly to inbox via Resend API"
+			},
+			"response": []
+		},
+		{
+			"name": "8. Run Churn Risk Detection Engine",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "https://retention-intelligence-backend.onrender.com/api/v1/detection/evaluate/a1111111-1111-1111-1111-111111111111",
+					"protocol": "https",
+					"host": [
+						"retention-intelligence-backend",
+						"onrender",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"detection",
+						"evaluate",
+						"a1111111-1111-1111-1111-111111111111"
+					]
+				},
+				"description": "Evaluates risk metrics for Shoprite Holdings Ltd"
+			},
+			"response": []
+		}
+	]
+}

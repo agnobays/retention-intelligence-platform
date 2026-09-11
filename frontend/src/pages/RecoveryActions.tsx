@@ -57,6 +57,30 @@ export const RecoveryActions: React.FC = () => {
     }
   };
 
+  const handleTriggerCamundaWorkflow = async (type: 'recovery' | 'escalation' | 'survey' | 'all') => {
+    try {
+      setMessage(null);
+      const customerId = 'a1111111-1111-1111-1111-111111111111'; // Shoprite Holdings Ltd
+      let res;
+      if (type === 'recovery') {
+        res = await workflowService.startCustomerRecoveryWorkflow(customerId);
+        setMessage(`🚀 Camunda 7 CustomerRecoveryProcess Workflow launched! Instance ID: ${res.workflowInstanceId || 'active'}`);
+      } else if (type === 'escalation') {
+        res = await workflowService.startExecutiveEscalationWorkflow(customerId);
+        setMessage(`⚡ Camunda 7 ExecutiveEscalationProcess launched! Instance ID: ${res.workflowInstanceId || 'active'}`);
+      } else if (type === 'survey') {
+        res = await workflowService.startChurnPreventionSurveyWorkflow(customerId);
+        setMessage(`📊 Camunda 7 ChurnPreventionSurveyProcess launched! Instance ID: ${res.workflowInstanceId || 'active'}`);
+      } else {
+        res = await workflowService.triggerAllWorkflows(customerId);
+        setMessage(`💥 All 3 Camunda 7 BPMN Workflows launched simultaneously for Shoprite Holdings Ltd! Check Camunda Cockpit.`);
+      }
+      await fetchTasks();
+    } catch (err) {
+      setMessage('Failed to launch Camunda workflow.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -64,13 +88,23 @@ export const RecoveryActions: React.FC = () => {
           <h1 className="text-2xl font-bold text-slate-100">Standard Bank CIB Relationship Manager Approval Queue</h1>
           <p className="text-sm text-slate-400">Review and approve Camunda 7 BPMN corporate retention playbooks & concessions</p>
         </div>
-        <button
-          onClick={fetchTasks}
-          className="p-2 border border-dark-border rounded-lg text-slate-400 hover:text-slate-200"
-          title="Refresh Queue"
-        >
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="https://retention-intelligence-backend.onrender.com/camunda/app/cockpit/default/"
+            target="_blank"
+            rel="noreferrer"
+            className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all"
+          >
+            🔗 Camunda Cockpit ↗
+          </a>
+          <button
+            onClick={fetchTasks}
+            className="p-2 border border-dark-border rounded-lg text-slate-400 hover:text-slate-200"
+            title="Refresh Queue"
+          >
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
       </div>
 
       {message && (
@@ -79,6 +113,39 @@ export const RecoveryActions: React.FC = () => {
           <span>{message}</span>
         </div>
       )}
+
+      {/* Camunda Workflow Launcher Card */}
+      <Card title="⚙️ Camunda 7 BPMN Workflow Launcher (Shoprite Holdings Ltd)">
+        <div className="p-4 bg-slate-900/60 border border-slate-800 rounded-xl space-y-3">
+          <p className="text-xs text-slate-400">Click below to launch live BPMN workflow instances in the Camunda 7 engine on Render and view them in Cockpit & Render logs.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <button
+              onClick={() => handleTriggerCamundaWorkflow('recovery')}
+              className="py-2.5 px-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-all"
+            >
+              🚀 Customer Recovery Workflow
+            </button>
+            <button
+              onClick={() => handleTriggerCamundaWorkflow('escalation')}
+              className="py-2.5 px-3 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-all"
+            >
+              ⚡ Executive Escalation Workflow
+            </button>
+            <button
+              onClick={() => handleTriggerCamundaWorkflow('survey')}
+              className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-all"
+            >
+              📊 Churn Prevention Survey
+            </button>
+            <button
+              onClick={() => handleTriggerCamundaWorkflow('all')}
+              className="py-2.5 px-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md transition-all"
+            >
+              💥 Trigger ALL 3 Workflows
+            </button>
+          </div>
+        </div>
+      </Card>
 
       {/* Immediate Testing Control Panel */}
       <Card title="⚡ Testing Phase: Immediate Retention Email Dispatcher">
