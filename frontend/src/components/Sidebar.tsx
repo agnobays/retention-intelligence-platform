@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -8,8 +8,10 @@ import {
   PlayCircle, 
   BarChart3, 
   Settings,
-  GitBranch
+  GitBranch,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
   { path: '/', label: 'Executive Dashboard', icon: LayoutDashboard },
@@ -22,6 +24,14 @@ const navItems = [
 ];
 
 export const Sidebar: React.FC = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <aside className="w-64 border-r border-dark-border bg-dark-card/30 flex flex-col justify-between py-4 px-3 min-h-[calc(100vh-4rem)]">
       <nav className="space-y-1">
@@ -49,13 +59,22 @@ export const Sidebar: React.FC = () => {
         })}
       </nav>
 
-      <div className="p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-lg">
-        <div className="flex items-center gap-2 text-xs text-indigo-300 font-semibold mb-1">
-          <GitBranch size={14} /> Workflow Engine
+      <div className="space-y-3">
+        <div className="p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-lg">
+          <div className="flex items-center gap-2 text-xs text-indigo-300 font-semibold mb-1">
+            <GitBranch size={14} /> Workflow Engine
+          </div>
+          <p className="text-[11px] text-slate-400">
+            CustomerRecoveryProcess.bpmn active on Camunda 7 engine.
+          </p>
         </div>
-        <p className="text-[11px] text-slate-400">
-          CustomerRecoveryProcess.bpmn active on Camunda 8 Zeebe cluster.
-        </p>
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-rose-600/10 hover:bg-rose-600/20 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-semibold transition-all"
+        >
+          <LogOut size={16} /> Sign Out / Logout
+        </button>
       </div>
     </aside>
   );
