@@ -3,7 +3,9 @@ package com.retention.intelligence.service;
 import com.retention.intelligence.dto.BatchImportResultDTO;
 import com.retention.intelligence.dto.CustomerDTO;
 import com.retention.intelligence.dto.WorkflowDTO;
+import com.retention.intelligence.entity.Company;
 import com.retention.intelligence.entity.Customer;
+import com.retention.intelligence.repository.CompanyRepository;
 import com.retention.intelligence.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ public class CustomerService {
     private static final Logger log = LoggerFactory.getLogger(CustomerService.class);
 
     private final CustomerRepository customerRepository;
+    private final CompanyRepository companyRepository;
     private final DetectionEngineService detectionEngineService;
     private final CustomerValueEngineService customerValueEngineService;
     private final DecisionEngineService decisionEngineService;
@@ -56,6 +59,12 @@ public class CustomerService {
                         .churnProbability(dto.getChurnProbability() != null ? dto.getChurnProbability() : new BigDecimal("78.50"))
                         .status(dto.getStatus() != null ? dto.getStatus() : "AT_RISK")
                         .build());
+
+        if (customer.getCompany() == null) {
+            Company defaultCompany = companyRepository.findById(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                    .orElseGet(() -> companyRepository.findAll().stream().findFirst().orElse(null));
+            customer.setCompany(defaultCompany);
+        }
 
         if (dto.getName() != null) customer.setName(dto.getName());
         if (dto.getEmail() != null) customer.setEmail(dto.getEmail());
