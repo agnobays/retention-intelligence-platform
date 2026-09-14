@@ -12,5 +12,6 @@ import java.util.UUID;
 public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     List<Customer> findByCompanyId(UUID companyId);
     List<Customer> findByStatus(String status);
+    Optional<Customer> findByExternalCustomerId(String externalCustomerId);
     Optional<Customer> findByCompanyIdAndExternalCustomerId(UUID companyId, String externalCustomerId);
 }
