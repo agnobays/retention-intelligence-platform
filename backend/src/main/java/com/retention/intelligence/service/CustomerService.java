@@ -48,9 +48,22 @@ public class CustomerService {
     }
 
     public CustomerDTO importCustomer(CustomerDTO dto) {
+        Company defaultCompany = companyRepository.findAll().stream().findFirst()
+                .orElseGet(() -> {
+                    Company newComp = Company.builder()
+                            .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+                            .name("Standard Bank CIB")
+                            .domain("standardbank.co.za")
+                            .industry("FINANCIAL_SERVICES")
+                            .subscriptionTier("ENTERPRISE")
+                            .build();
+                    return companyRepository.save(newComp);
+                });
+
         Customer customer = customerRepository.findByExternalCustomerId(dto.getExternalCustomerId())
                 .orElseGet(() -> Customer.builder()
                         .externalCustomerId(dto.getExternalCustomerId() != null ? dto.getExternalCustomerId() : "SB-CIB-" + System.currentTimeMillis() % 10000)
+                        .company(defaultCompany)
                         .name(dto.getName())
                         .email(dto.getEmail())
                         .mrr(dto.getMrr() != null ? dto.getMrr() : new BigDecimal("250000.00"))
@@ -61,8 +74,6 @@ public class CustomerService {
                         .build());
 
         if (customer.getCompany() == null) {
-            Company defaultCompany = companyRepository.findById(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-                    .orElseGet(() -> companyRepository.findAll().stream().findFirst().orElse(null));
             customer.setCompany(defaultCompany);
         }
 
