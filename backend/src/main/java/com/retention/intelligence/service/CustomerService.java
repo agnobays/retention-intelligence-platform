@@ -48,34 +48,46 @@ public class CustomerService {
     }
 
     public CustomerDTO importCustomer(CustomerDTO dto) {
-        Company defaultCompany = companyRepository.findAll().stream().findFirst()
+        Company defaultCompany = null;
+        if (dto.getCompanyId() != null) {
+            defaultCompany = companyRepository.findById(dto.getCompanyId()).orElse(null);
+        }
+        if (defaultCompany == null) {
+            defaultCompany = companyRepository.findById(UUID.fromString("11111111-1111-1111-1111-111111111111")).orElse(null);
+        }
+        if (defaultCompany == null) {
+            defaultCompany = companyRepository.findAll().stream().findFirst().orElse(null);
+        }
+        if (defaultCompany == null) {
+            Company newComp = new Company();
+            newComp.setName("Standard Bank CIB");
+            newComp.setDomain("standardbank.co.za");
+            newComp.setIndustry("FINANCIAL_SERVICES");
+            newComp.setSubscriptionTier("ENTERPRISE");
+            defaultCompany = companyRepository.save(newComp);
+        }
+
+        final Company targetCompany = defaultCompany;
+        String extId = (dto.getExternalCustomerId() != null && !dto.getExternalCustomerId().trim().isEmpty())
+                ? dto.getExternalCustomerId().trim()
+                : "SB-CIB-" + (System.currentTimeMillis() % 10000);
+
+        Customer customer = customerRepository.findByExternalCustomerId(extId)
                 .orElseGet(() -> {
-                    Company newComp = Company.builder()
-                            .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-                            .name("Standard Bank CIB")
-                            .domain("standardbank.co.za")
-                            .industry("FINANCIAL_SERVICES")
-                            .subscriptionTier("ENTERPRISE")
-                            .build();
-                    return companyRepository.save(newComp);
+                    Customer newCust = new Customer();
+                    newCust.setExternalCustomerId(extId);
+                    newCust.setCompany(targetCompany);
+                    newCust.setName(dto.getName() != null ? dto.getName() : "Unnamed Client");
+                    newCust.setEmail(dto.getEmail() != null ? dto.getEmail() : "client@standardbank.co.za");
+                    newCust.setMrr(dto.getMrr() != null ? dto.getMrr() : new BigDecimal("250000.00"));
+                    newCust.setArr(dto.getArr() != null ? dto.getArr() : new BigDecimal("3000000.00"));
+                    newCust.setHealthScore(dto.getHealthScore() != null ? dto.getHealthScore() : 45);
+                    newCust.setChurnProbability(dto.getChurnProbability() != null ? dto.getChurnProbability() : new BigDecimal("78.50"));
+                    newCust.setStatus(dto.getStatus() != null ? dto.getStatus() : "AT_RISK");
+                    return newCust;
                 });
 
-        Customer customer = customerRepository.findByExternalCustomerId(dto.getExternalCustomerId())
-                .orElseGet(() -> Customer.builder()
-                        .externalCustomerId(dto.getExternalCustomerId() != null ? dto.getExternalCustomerId() : "SB-CIB-" + System.currentTimeMillis() % 10000)
-                        .company(defaultCompany)
-                        .name(dto.getName())
-                        .email(dto.getEmail())
-                        .mrr(dto.getMrr() != null ? dto.getMrr() : new BigDecimal("250000.00"))
-                        .arr(dto.getArr() != null ? dto.getArr() : new BigDecimal("3000000.00"))
-                        .healthScore(dto.getHealthScore() != null ? dto.getHealthScore() : 45)
-                        .churnProbability(dto.getChurnProbability() != null ? dto.getChurnProbability() : new BigDecimal("78.50"))
-                        .status(dto.getStatus() != null ? dto.getStatus() : "AT_RISK")
-                        .build());
-
-        if (customer.getCompany() == null) {
-            customer.setCompany(defaultCompany);
-        }
+        customer.setCompany(targetCompany);
 
         if (dto.getName() != null) customer.setName(dto.getName());
         if (dto.getEmail() != null) customer.setEmail(dto.getEmail());
