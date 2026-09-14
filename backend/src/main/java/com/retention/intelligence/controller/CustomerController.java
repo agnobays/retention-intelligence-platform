@@ -1,5 +1,6 @@
 package com.retention.intelligence.controller;
 
+import com.retention.intelligence.dto.BatchImportResultDTO;
 import com.retention.intelligence.dto.CustomerDTO;
 import com.retention.intelligence.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +40,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomersByCompany(companyId));
     }
 
-    @PostMapping("/import")
+    @PostMapping({"/import", "/save"})
     @Operation(summary = "Import Customer Data", description = "Imports or updates customer profile data")
     public ResponseEntity<CustomerDTO> importCustomer(@Valid @RequestBody CustomerDTO dto) {
         log.info("================================================================================");
@@ -48,9 +49,9 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.importCustomer(dto));
     }
 
-    @PostMapping({"/import-batch", "/batch-import", "/import-spreadsheet"})
+    @PostMapping({"/import-batch", "/batch-import", "/import-spreadsheet", "/batch"})
     @Operation(summary = "Import Spreadsheet Corporate Accounts", description = "Analyzes batch corporate CSV rows, evaluates churn risk, and auto-triggers Camunda 7 BPMN workflows")
-    public ResponseEntity<com.retention.intelligence.dto.BatchImportResultDTO> importSpreadsheetBatch(@RequestBody List<CustomerDTO> batchList) {
+    public ResponseEntity<BatchImportResultDTO> importSpreadsheetBatch(@RequestBody List<CustomerDTO> batchList) {
         log.info("================================================================================");
         log.info("📥 API REQUEST: POST /api/v1/customers/import-batch - Analyzing {} spreadsheet rows", batchList != null ? batchList.size() : 0);
         log.info("================================================================================");
