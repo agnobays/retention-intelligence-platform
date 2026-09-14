@@ -59,11 +59,28 @@ public class CustomerService {
 
         if (dto.getName() != null) customer.setName(dto.getName());
         if (dto.getEmail() != null) customer.setEmail(dto.getEmail());
+        if (dto.getCustomerSegment() != null) customer.setCustomerSegment(dto.getCustomerSegment());
+        if (dto.getTenure() != null) customer.setTenure(dto.getTenure());
+        if (dto.getProductsHeld() != null) customer.setProductsHeld(dto.getProductsHeld());
         if (dto.getMrr() != null) customer.setMrr(dto.getMrr());
         if (dto.getArr() != null) customer.setArr(dto.getArr());
         if (dto.getHealthScore() != null) customer.setHealthScore(dto.getHealthScore());
+        if (dto.getFrustrationScore() != null) customer.setFrustrationScore(dto.getFrustrationScore());
+        if (dto.getSatisfactionScore() != null) customer.setSatisfactionScore(dto.getSatisfactionScore());
         if (dto.getChurnProbability() != null) customer.setChurnProbability(dto.getChurnProbability());
         if (dto.getStatus() != null) customer.setStatus(dto.getStatus());
+        if (dto.getIssueCategory() != null) customer.setIssueCategory(dto.getIssueCategory());
+        if (dto.getIssueSeverity() != null) customer.setIssueSeverity(dto.getIssueSeverity());
+        if (dto.getPreviousComplaintsCount() != null) customer.setPreviousComplaintsCount(dto.getPreviousComplaintsCount());
+        if (dto.getResolutionTimeHours() != null) customer.setResolutionTimeHours(dto.getResolutionTimeHours());
+        if (dto.getInteractionsCount() != null) customer.setInteractionsCount(dto.getInteractionsCount());
+        if (dto.getEscalationsCount() != null) customer.setEscalationsCount(dto.getEscalationsCount());
+        if (dto.getRecommendedIntervention() != null) customer.setRecommendedIntervention(dto.getRecommendedIntervention());
+        if (dto.getRewardCategory() != null) customer.setRewardCategory(dto.getRewardCategory());
+        if (dto.getRewardValue() != null) customer.setRewardValue(dto.getRewardValue());
+        if (dto.getRewardRedeemed() != null) customer.setRewardRedeemed(dto.getRewardRedeemed());
+        if (dto.getPostRecoveryScore() != null) customer.setPostRecoveryScore(dto.getPostRecoveryScore());
+        if (dto.getRetentionOutcome() != null) customer.setRetentionOutcome(dto.getRetentionOutcome());
 
         Customer saved = customerRepository.save(customer);
 
@@ -161,11 +178,29 @@ public class CustomerService {
                 .externalCustomerId(customer.getExternalCustomerId())
                 .name(customer.getName())
                 .email(customer.getEmail())
+                .customerSegment(customer.getCustomerSegment())
+                .tenure(customer.getTenure())
+                .productsHeld(customer.getProductsHeld())
                 .mrr(customer.getMrr())
                 .arr(customer.getArr())
                 .healthScore(customer.getHealthScore())
+                .frustrationScore(customer.getFrustrationScore())
+                .satisfactionScore(customer.getSatisfactionScore())
                 .churnProbability(customer.getChurnProbability())
                 .status(customer.getStatus())
+                .issueCategory(customer.getIssueCategory())
+                .issueSeverity(customer.getIssueSeverity())
+                .previousComplaintsCount(customer.getPreviousComplaintsCount())
+                .resolutionTimeHours(customer.getResolutionTimeHours())
+                .interactionsCount(customer.getInteractionsCount())
+                .escalationsCount(customer.getEscalationsCount())
+                .recommendedIntervention(customer.getRecommendedIntervention())
+                .rewardCategory(customer.getRewardCategory())
+                .rewardValue(customer.getRewardValue())
+                .rewardRedeemed(customer.getRewardRedeemed())
+                .postRecoveryScore(customer.getPostRecoveryScore())
+                .retentionOutcome(customer.getRetentionOutcome())
+                .contractRenewalDate(customer.getContractRenewalDate())
                 .build();
     }
 }

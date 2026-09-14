@@ -35,37 +35,53 @@ public class DecisionEngineService {
 
         String strategicTier = valueScoreOpt.map(CustomerValueScore::getStrategicValueTier).orElse("TIER_2");
         BigDecimal arr = customer.getArr() != null ? customer.getArr() : BigDecimal.ZERO;
+        String segment = customer.getCustomerSegment() != null ? customer.getCustomerSegment() : "COMMERCIAL_SME";
+        int frustration = customer.getFrustrationScore() != null ? customer.getFrustrationScore() : 75;
 
         String recommendedAction;
         int discountPercentage;
         boolean requiresApproval;
+        String rewardCategory;
+        String rewardValue;
 
-        if ("TIER_1".equals(strategicTier) || arr.compareTo(new BigDecimal("2000000.00")) >= 0) {
-            recommendedAction = "DEDICATED_CIB_RELATIONSHIP_MANAGER_OUTREACH_AND_15_PERCENT_FEE_DISCOUNT";
+        if ("PRIVATE_CLIENT".equalsIgnoreCase(segment) || frustration >= 80 || "TIER_1".equals(strategicTier) || arr.compareTo(new BigDecimal("2000000.00")) >= 0) {
+            recommendedAction = "SENIOR_RELATIONSHIP_MANAGER_INTERVENTION_AND_PREMIUM_LOYALTY_REWARD";
             discountPercentage = 15;
             requiresApproval = true;
-        } else if ("TIER_2".equals(strategicTier) || arr.compareTo(new BigDecimal("1000000.00")) >= 0) {
-            recommendedAction = "CUSTOM_FX_RATE_LOCK_AND_10_PERCENT_DISCOUNT";
+            rewardCategory = "Lifestyle & Executive Experience";
+            rewardValue = "R1,500 Lifestyle Experience Voucher & Dedicated Private Banker";
+        } else if ("COMMERCIAL_SME".equalsIgnoreCase(segment) || frustration >= 70 || "TIER_2".equals(strategicTier) || arr.compareTo(new BigDecimal("500000.00")) >= 0) {
+            recommendedAction = "BUSINESS_SPECIALIST_INTERVENTION_AND_MERCHANT_FEE_WAIVER";
             discountPercentage = 10;
             requiresApproval = true;
+            rewardCategory = "Merchant Fee Credit & Business Benefit";
+            rewardValue = "Merchant Fee Waiver & Priority Settlement Desk Access";
         } else {
-            recommendedAction = "AUTOMATED_LOAN_RESTRUCTURE_OFFER";
+            recommendedAction = "AUTOMATED_SERVICE_RECOVERY_AND_RETAIL_LOYALTY_REWARD";
             discountPercentage = 5;
             requiresApproval = false;
+            rewardCategory = "Retail Voucher & Loyalty Points";
+            rewardValue = "5,000 Loyalty Points / R250 Retail Voucher";
         }
+
+        // Update Customer Entity with decision outputs
+        customer.setRecommendedIntervention(recommendedAction);
+        customer.setRewardCategory(rewardCategory);
+        customer.setRewardValue(rewardValue);
+        customerRepository.save(customer);
 
         RecoveryPlan plan = RecoveryPlan.builder()
                 .customer(customer)
                 .recommendedAction(recommendedAction)
                 .discountPercentage(discountPercentage)
                 .status(requiresApproval ? "PENDING_APPROVAL" : "APPROVED")
-                .outcomeNotes(requiresApproval ? "Awaiting Relationship Manager approval." : "Auto-approved system recovery action.")
+                .outcomeNotes(requiresApproval ? "Awaiting Senior Management / RM approval for " + rewardCategory + "." : "Auto-approved loyalty recovery action.")
                 .build();
 
         RecoveryPlan saved = recoveryPlanRepository.save(plan);
 
-        log.info("🧠 [DECISION ENGINE] Recommended retention strategy for {}: Action={}, Discount={}% (Approval Required={})",
-                customer.getName(), recommendedAction, discountPercentage, requiresApproval);
+        log.info("🧠 [SANISA DECISION ENGINE] Segment={}, Frustration={}/100 -> Recommended Strategy for {}: Action={}, Reward='{}' (Approval Required={})",
+                segment, frustration, customer.getName(), recommendedAction, rewardValue, requiresApproval);
 
         return RecoveryDTO.builder()
                 .planId(saved.getId())
