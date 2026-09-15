@@ -30,6 +30,7 @@ public class CustomerService {
     private final CustomerValueEngineService customerValueEngineService;
     private final DecisionEngineService decisionEngineService;
     private final WorkflowService workflowService;
+    private final NotificationService notificationService;
 
     public List<CustomerDTO> getAllCustomers() {
         return customerRepository.findAll().stream()
@@ -179,10 +180,13 @@ public class CustomerService {
             ));
         }
 
-        log.info("================================================================================");
-        log.info("🎉 [SPREADSHEET IMPORT COMPLETE] Imported: {}, At Risk: {}, Workflows Launched: {}",
-                batchList.size(), atRiskCount, workflowsLaunched);
-        log.info("================================================================================");
+        if (notificationService != null) {
+            notificationService.broadcastNotification(
+                "📊 Batch CSV Import Processed",
+                "Processed " + batchList.size() + " accounts (" + atRiskCount + " at-risk). Launched " + workflowsLaunched + " Camunda BPMN workflows.",
+                "workflow"
+            );
+        }
 
         return new BatchImportResultDTO(
                 "SUCCESS",
