@@ -10,6 +10,8 @@ export interface NotificationItem {
   timestamp?: number;
 }
 
+const STORAGE_KEY = 'sanisa_notifications_v1';
+
 const getBaseUrl = () => {
   if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:8080/api/v1';
@@ -24,7 +26,7 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     message: 'Dr. Anele Nkosi (Private Client) experienced a 72h Investment Request delay. Churn risk 88%.',
     time: '2 mins ago',
     type: 'alert',
-    read: false,
+    read: true,
   },
   {
     id: 'n2',
@@ -32,29 +34,34 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     message: 'CustomerRecoveryProcess & ExecutiveEscalationProcess activated for Apex Logistics Enterprise.',
     time: '15 mins ago',
     type: 'workflow',
-    read: false,
-  },
-  {
-    id: 'n3',
-    title: 'Autonomous AI Email Dispatched',
-    message: 'Personalized retention compensation email sent to treasury@apexlogistics.co.za (Fee Waiver Reserved).',
-    time: '42 mins ago',
-    type: 'email',
-    read: false,
-  },
-  {
-    id: 'n4',
-    title: 'Recovery Case Saved',
-    message: 'Sasol Enterprise Solutions retention case successfully closed with status SAVED.',
-    time: '1 hour ago',
-    type: 'success',
     read: true,
   },
 ];
 
+const loadStoredNotifications = (): NotificationItem[] => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved !== null) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Error reading notifications from localStorage', e);
+  }
+  return INITIAL_NOTIFICATIONS;
+};
+
 export function useRealtimeNotifications() {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotificationsState] = useState<NotificationItem[]>(loadStoredNotifications);
   const [isConnected, setIsConnected] = useState(false);
+
+  const saveAndSetNotifications = (next: NotificationItem[]) => {
+    setNotificationsState(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch (e) {
+      console.error('Error saving notifications to localStorage', e);
+    }
+  };
 
   useEffect(() => {
     const sseUrl = `${getBaseUrl()}/notifications/stream`;
@@ -70,7 +77,15 @@ export function useRealtimeNotifications() {
       eventSource.addEventListener('NOTIFICATION', (event: MessageEvent) => {
         try {
           const data: NotificationItem = JSON.parse(event.data);
-          setNotifications((prev) => [data, ...prev]);
+          setNotificationsState((prev) => {
+            // Deduplicate incoming events by ID or title
+            if (prev.some((n) => n.id === data.id)) return prev;
+            const updated = [data, ...prev];
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+            } catch (e) {}
+            return updated;
+          });
         } catch (err) {
           console.error('Error parsing SSE notification event:', err);
         }
@@ -98,21 +113,22 @@ export function useRealtimeNotifications() {
   }, []);
 
   const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    const updated = notifications.map((n) => ({ ...n, read: true }));
+    saveAndSetNotifications(updated);
   };
 
   const clearAll = () => {
-    setNotifications([]);
+    saveAndSetNotifications([]);
   };
 
   const markSingleRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    const updated = notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
+    saveAndSetNotifications(updated);
   };
 
   const addNotification = (notif: NotificationItem) => {
-    setNotifications((prev) => [notif, ...prev]);
+    const updated = [notif, ...notifications];
+    saveAndSetNotifications(updated);
   };
 
   return {

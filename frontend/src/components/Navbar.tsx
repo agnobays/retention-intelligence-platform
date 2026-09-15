@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   Radio,
   Menu,
-  ShieldCheck
+  ShieldCheck,
+  ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRealtimeNotifications, NotificationItem } from '../hooks/useRealtimeNotifications';
@@ -38,6 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [selectedNotif, setSelectedNotif] = useState<NotificationItem | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -47,16 +49,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
   const getNotifIcon = (type: NotificationItem['type']) => {
     switch (type) {
       case 'alert':
-        return <AlertTriangle size={16} className="text-rose-400" />;
+        return <AlertTriangle size={18} className="text-rose-400" />;
       case 'workflow':
-        return <PlayCircle size={16} className="text-indigo-400" />;
+        return <PlayCircle size={18} className="text-indigo-400" />;
       case 'email':
-        return <MailCheck size={16} className="text-emerald-400" />;
+        return <MailCheck size={18} className="text-emerald-400" />;
       case 'success':
-        return <CheckCircle2 size={16} className="text-blue-400" />;
+        return <CheckCircle2 size={18} className="text-blue-400" />;
       default:
-        return <Bell size={16} className="text-indigo-400" />;
+        return <Bell size={18} className="text-indigo-400" />;
     }
+  };
+
+  const handleNotificationClick = (item: NotificationItem) => {
+    markSingleRead(item.id);
+    setSelectedNotif(item);
   };
 
   return (
@@ -118,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
                 )}
               </button>
 
-              {/* Notifications Panel */}
+              {/* Notifications Dropdown Panel */}
               {isNotifOpen && (
                 <div className="absolute right-0 mt-3 w-80 max-w-[90vw] md:w-96 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden space-y-0">
                   <div className="p-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
@@ -165,9 +172,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
                       notifications.map((item) => (
                         <div
                           key={item.id}
-                          onClick={() => markSingleRead(item.id)}
-                          className={`p-3.5 transition-colors cursor-pointer flex gap-3 ${
-                            item.read ? 'bg-slate-900/40 hover:bg-slate-800/50 opacity-70' : 'bg-slate-850 hover:bg-slate-800/90'
+                          onClick={() => handleNotificationClick(item)}
+                          className={`p-3.5 transition-colors cursor-pointer flex gap-3 hover:bg-slate-800/90 ${
+                            item.read ? 'bg-slate-900/40 opacity-75' : 'bg-slate-850'
                           }`}
                         >
                           <div className="mt-0.5 shrink-0">{getNotifIcon(item.type)}</div>
@@ -181,6 +188,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
                             <p className="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">
                               {item.message}
                             </p>
+                            <span className="text-[10px] text-indigo-400 font-medium mt-1 inline-flex items-center gap-1 hover:underline">
+                              Click to view full details ↗
+                            </span>
                           </div>
                           {!item.read && (
                             <div className="w-2 h-2 rounded-full bg-indigo-500 self-center shrink-0"></div>
@@ -237,6 +247,68 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
 
         </div>
       </div>
+
+      {/* 🔔 FULL NOTIFICATION MESSAGE POP-UP MODAL */}
+      {selectedNotif && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="w-full max-w-lg bg-slate-900 border border-indigo-500/40 rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
+            
+            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-slate-800 rounded-xl border border-slate-700">
+                  {getNotifIcon(selectedNotif.type)}
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-indigo-400">
+                    {selectedNotif.type} Event Notification
+                  </span>
+                  <h3 className="text-base font-bold text-slate-100 mt-0.5">{selectedNotif.title}</h3>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedNotif(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-800/80 space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+                <span>Timestamp</span>
+                <span className="font-mono text-indigo-300">{selectedNotif.time}</span>
+              </div>
+              
+              <div className="pt-2">
+                <p className="text-xs text-slate-200 font-semibold mb-1">Full Message Payload:</p>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-wrap bg-slate-900 p-3 rounded-lg border border-slate-800">
+                  {selectedNotif.message}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                onClick={() => {
+                  setSelectedNotif(null);
+                  navigate('/recovery');
+                }}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-indigo-600/30 transition-all"
+              >
+                Open Recovery Desk <ExternalLink size={14} />
+              </button>
+
+              <button
+                onClick={() => setSelectedNotif(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-colors"
+              >
+                Close Window
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </header>
   );
 };

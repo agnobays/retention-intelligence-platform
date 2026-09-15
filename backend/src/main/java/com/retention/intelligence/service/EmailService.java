@@ -45,12 +45,12 @@ public class EmailService {
 
         if (customRecipient != null && !customRecipient.trim().isEmpty()) {
             toEmail = customRecipient.trim();
-        } else if (customerName != null && customerName.toLowerCase().contains("shoprite")) {
-            toEmail = "zolani1999@gmail.com";
-        } else if (discount >= 15) {
-            toEmail = "zolani1999@gmail.com";
-        } else {
+        } else if (customerName != null && (customerName.toLowerCase().contains("apex") || customerName.toLowerCase().contains("sme") || customerName.toLowerCase().contains("mtn") || customerName.toLowerCase().contains("commercial"))) {
             toEmail = "vgnobookings@gmail.com";
+        } else if (customerName != null && (customerName.toLowerCase().contains("thabo") || customerName.toLowerCase().contains("everyday") || customerName.toLowerCase().contains("discovery") || customerName.toLowerCase().contains("khumalo"))) {
+            toEmail = "uunderratedrecords@gmail.com";
+        } else {
+            toEmail = "zolani1999@gmail.com";
         }
 
         subject = "Standard Bank CIB: Executive Fee Concession & Dedicated RM Outreach for " + customerName;
