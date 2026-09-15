@@ -67,3 +67,17 @@ export interface DashboardMetrics {
   recoverySuccessRate: number;
   activeWorkflows: number;
 }
+
+export interface CustomerJourneyLogItem {
+  sessionId: string;
+  externalCustomerId: string;
+  customerName: string;
+  eventType: string;
+  timestamp: string;
+  approver: string;
+  recipientEmail: string;
+  subject: string;
+  messageContent: string;
+  concessionReward: string;
+}
+

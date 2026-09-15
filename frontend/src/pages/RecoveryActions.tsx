@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '../components/Card';
 import { Badge } from '../components/Badge';
+import { CustomerJourneyAuditLogs } from '../components/CustomerJourneyAuditLogs';
 import { workflowService, WorkflowTask } from '../services/workflowService';
 import { apiClient } from '../services/apiClient';
 import { CheckCircle2, XCircle, RefreshCw, ShieldAlert, Mail, Send, Bot, Sparkles, Clock, AlertTriangle } from 'lucide-react';
@@ -461,6 +462,10 @@ export const RecoveryActions: React.FC = () => {
           )}
         </div>
       </Card>
+
+      {/* 📜 Customer Journey & Email Dispatch Audit Logs */}
+      <CustomerJourneyAuditLogs />
     </div>
   );
 };
+

@@ -2,6 +2,7 @@ package com.retention.intelligence.service;
 
 import com.retention.intelligence.entity.Customer;
 import com.retention.intelligence.entity.RecoveryPlan;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,9 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
+    private final AuditLogService auditLogService;
 
     @Value("${RESEND_API_KEY:${resend.api-key:re_demo_key}}")
     private String resendApiKey;
@@ -53,18 +57,43 @@ public class EmailService {
             toEmail = "zolani1999@gmail.com";
         }
 
+        String extCustId = (externalId != null && !externalId.trim().isEmpty()) ? externalId.trim() : "SB-CIB-1001";
         subject = "Standard Bank CIB: Executive Fee Concession & Dedicated RM Outreach for " + customerName;
-        htmlContent = buildTier1EmailTemplate(customerName, externalId != null ? externalId : "SB-CIB-1001", discount, action != null ? action : "Approved Concession");
+        htmlContent = buildTier1EmailTemplate(customerName, extCustId, discount, action != null ? action : "Approved Concession");
+
+        String fullMessageContent = String.format(
+            "Dear Treasury & Corporate Finance Team at %s (%s), Following our automated risk intelligence review, Standard Bank CIB has authorized a dedicated corporate retention strategy: Approved Concession: %s with a %d%% fee concession. Senior CIB Relationship Manager (Sipho Dlamini) assigned. Email sent to: %s",
+            customerName, extCustId, action != null ? action : "Executive Outreach", discount, toEmail
+        );
+
+        // Record Audit Log with unique Session ID, Customer Number, Approver, Timestamp & Full Message
+        if (auditLogService != null) {
+            String sessionId = "SESS-" + System.currentTimeMillis() % 1000000;
+            String approverName = "Sipho Dlamini (Senior CIB Relationship Manager)";
+            if (customerName != null && customerName.toLowerCase().contains("apex")) {
+                approverName = "Autonomous AI Executive Desk";
+            }
+            auditLogService.recordLog(
+                sessionId,
+                extCustId,
+                customerName,
+                "RETENTION_EMAIL_DISPATCHED",
+                approverName,
+                toEmail,
+                subject,
+                fullMessageContent,
+                (action != null ? action : "Executive Concession") + " (" + discount + "% Fee Concession)"
+            );
+        }
 
         log.info("================================================================================");
         log.info("📧 [RETENTION EMAIL DISPATCH]");
-        log.info("  ├─ CLIENT ID       : {}", externalId != null ? externalId : "SB-CIB-1001");
+        log.info("  ├─ CLIENT ID       : {}", extCustId);
         log.info("  ├─ CLIENT DETAILS  : Name='{}', RecipientEmail='{}'", customerName, toEmail);
         log.info("  ├─ SENDER          : Standard Bank CIB <{}>", fromEmail);
         log.info("  ├─ SUBJECT         : {}", subject);
         log.info("  ├─ CONCESSION OFFER: {} ({}% Fee Concession)", action, discount);
-        log.info("  └─ MESSAGE SENT    : \"Dear Treasury & Corporate Finance Team at {} ({}), Following our automated risk intelligence review, Standard Bank CIB has authorized a dedicated corporate retention strategy: Approved Concession: {} with a {}% fee concession. Senior CIB Relationship Manager (Sipho Dlamini) assigned.\"", 
-                customerName, externalId != null ? externalId : "SB-CIB-1001", action, discount);
+        log.info("  └─ MESSAGE SENT    : \"{}\"", fullMessageContent);
         log.info("================================================================================");
 
         boolean apiSuccess = false;
@@ -126,3 +155,4 @@ public class EmailService {
                "</div></body></html>";
     }
 }
+

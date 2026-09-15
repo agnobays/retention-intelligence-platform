@@ -24,6 +24,7 @@ public class AiAgentController {
     private final CustomerRepository customerRepository;
     private final EmailService emailService;
     private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
 
     @PostMapping("/generate-email/{customerId}")
     @Operation(summary = "Generate Custom AI Email Tailored to Customer Issue", description = "Analyzes customer specific issue, frustration telemetry, and generates custom tailored email with concession voucher")
@@ -31,7 +32,20 @@ public class AiAgentController {
         Customer customer = customerRepository.findById(customerId).orElse(null);
         AiAgentService.CustomEmailResponse emailResp = aiAgentService.generateTailoredCustomerEmail(customer);
 
-        // Broadcast real-time SSE event
+        if (customer != null && auditLogService != null) {
+            auditLogService.recordLog(
+                "SESS-" + System.currentTimeMillis() % 1000000,
+                customer.getExternalCustomerId(),
+                customer.getName(),
+                "AI_EMAIL_SYNTHESIZED",
+                "Autonomous AI Executive Desk",
+                customer.getEmail(),
+                emailResp.getSubject(),
+                emailResp.getTextSummary(),
+                customer.getRewardValue()
+            );
+        }
+
         if (customer != null) {
             notificationService.broadcastNotification(
                 "🤖 AI Agent Generated Email",
@@ -58,6 +72,20 @@ public class AiAgentController {
             customer != null && customer.getRewardValue() != null ? customer.getRewardValue() : "Concession Voucher",
             recipient
         );
+
+        if (customer != null && auditLogService != null) {
+            auditLogService.recordLog(
+                "SESS-" + System.currentTimeMillis() % 1000000,
+                customer.getExternalCustomerId(),
+                customer.getName(),
+                "CUSTOM_EMAIL_DISPATCHED",
+                "Sipho Dlamini (Senior Relationship Manager)",
+                recipient != null ? recipient : customer.getEmail(),
+                subject != null ? subject : "Standard Bank Customer Resolution Notice",
+                htmlBody != null ? htmlBody : "Custom Care Message Dispatched",
+                customer.getRewardValue()
+            );
+        }
 
         if (customer != null) {
             notificationService.broadcastNotification(

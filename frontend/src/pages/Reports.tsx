@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from '../components/Card';
+import { CustomerJourneyAuditLogs } from '../components/CustomerJourneyAuditLogs';
 import { BarChart3, TrendingUp, ShieldCheck } from 'lucide-react';
 
 export const Reports: React.FC = () => {
@@ -33,6 +34,10 @@ export const Reports: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* 📜 Customer Journey & Email Dispatch Audit Logs */}
+      <CustomerJourneyAuditLogs />
     </div>
   );
 };
+
