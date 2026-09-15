@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Bell, 
-  ShieldCheck, 
   Building2, 
   LogOut, 
   CheckCheck, 
@@ -12,12 +11,19 @@ import {
   PlayCircle, 
   MailCheck, 
   CheckCircle2,
-  Radio
+  Radio,
+  Menu,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRealtimeNotifications, NotificationItem } from '../hooks/useRealtimeNotifications';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onToggleMobileMenu?: () => void;
+  isMobileOpen?: boolean;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen = false }) => {
   const { userEmail, userRole, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -55,30 +61,44 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* Logo & Brand Identity */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/dashboard')}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
-              <Building2 className="w-5 h-5 text-white" />
+          {/* Logo & Brand Identity + Mobile Menu Button */}
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+            {onToggleMobileMenu && (
+              <button
+                onClick={onToggleMobileMenu}
+                className="md:hidden p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800/80 transition-colors"
+                aria-label="Toggle Navigation Menu"
+              >
+                {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            )}
+
+            <div 
+              onClick={() => navigate('/dashboard')}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 shrink-0"
+            >
+              <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-100 text-base tracking-tight">Standard Bank</span>
-                <span className="px-2 py-0.5 text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-md">
-                  CIB Retention Intelligence
+            
+            <div onClick={() => navigate('/dashboard')}>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-bold text-slate-100 text-sm sm:text-base tracking-tight">Standard Bank</span>
+                <span className="hidden xs:inline-block px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-md">
+                  Retention Intelligence
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Sanisa Platform™ • Executive Desk</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400">Sanisa Platform™ • Executive Desk</p>
             </div>
           </div>
 
           {/* User Controls & Quick Tools */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
 
             {/* Live Realtime SSE Connection Indicator */}
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-slate-950/60 border border-slate-800/80 rounded-full text-[11px]">
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-slate-950/60 border border-slate-800/80 rounded-full text-[11px]">
               <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
               <span className="text-slate-300 font-medium">{isConnected ? 'SSE Live Stream' : 'Connecting Stream...'}</span>
             </div>
@@ -100,12 +120,12 @@ export const Navbar: React.FC = () => {
 
               {/* Notifications Panel */}
               {isNotifOpen && (
-                <div className="absolute right-0 mt-3 w-80 md:w-96 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden space-y-0">
+                <div className="absolute right-0 mt-3 w-80 max-w-[90vw] md:w-96 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden space-y-0">
                   <div className="p-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Radio size={14} className="text-emerald-400 animate-pulse" />
                       <span className="text-xs font-bold text-slate-100 uppercase tracking-wider">
-                        Live Notifications ({unreadCount} unread)
+                        Live Notifications ({unreadCount})
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -177,7 +197,7 @@ export const Navbar: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-slate-800/60 transition-all border border-transparent hover:border-slate-700/50"
+                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-800/60 transition-all border border-transparent hover:border-slate-700/50"
               >
                 <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300 font-bold text-xs">
                   {userEmail ? userEmail[0].toUpperCase() : 'S'}

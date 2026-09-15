@@ -9,7 +9,8 @@ import {
   BarChart3, 
   Settings,
   GitBranch,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -23,20 +24,36 @@ const navItems = [
   { path: '/settings', label: 'System Settings', icon: Settings },
 ];
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobile }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+    if (onCloseMobile) onCloseMobile();
     navigate('/login');
   };
 
-  return (
-    <aside className="w-64 border-r border-dark-border bg-dark-card/30 flex flex-col justify-between py-4 px-3 min-h-[calc(100vh-4rem)]">
+  const content = (
+    <div className="flex flex-col justify-between h-full py-4 px-3">
       <nav className="space-y-1">
-        <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Core Modules
+        <div className="flex items-center justify-between px-3 py-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Core Modules
+          </span>
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="md:hidden text-slate-400 hover:text-white p-1"
+            >
+              <X size={18} />
+            </button>
+          )}
         </div>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -44,6 +61,9 @@ export const Sidebar: React.FC = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => {
+                if (onCloseMobile) onCloseMobile();
+              }}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   isActive
@@ -76,6 +96,30 @@ export const Sidebar: React.FC = () => {
           <LogOut size={16} /> Sign Out / Logout
         </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Fixed Sidebar */}
+      <aside className="hidden md:flex w-64 border-r border-dark-border bg-dark-card/30 flex-col min-h-[calc(100vh-4rem)] shrink-0">
+        {content}
+      </aside>
+
+      {/* Mobile Backdrop & Drawer Overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop blur */}
+          <div
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+            onClick={onCloseMobile}
+          />
+          {/* Drawer Container */}
+          <aside className="relative w-72 max-w-[80vw] bg-slate-900 border-r border-slate-800 shadow-2xl z-50 flex flex-col h-full">
+            {content}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };
