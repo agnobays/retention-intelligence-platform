@@ -110,18 +110,19 @@ public class EmailService {
 
     private String buildTier1EmailTemplate(String customerName, String externalId, int discount, String action) {
         return "<html><body style='font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 24px;'>" +
-               "<div style='max-width: 600px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 32px; border: 1px solid #334155;'>" +
-               "<h2 style='color: #60a5fa; margin-top: 0;'>Standard Bank Corporate & Investment Banking</h2>" +
+               "<div style='max-width: 620px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 32px; border: 1px solid #334155;'>" +
+               "<h2 style='color: #38bdf8; margin-top: 0;'>Standard Bank Executive Client Care</h2>" +
                "<hr style='border-color: #334155;'/>" +
-               "<h3>Executive Retention Concession Notice</h3>" +
-               "<p>Dear Treasury & Corporate Finance Team at <strong>" + customerName + "</strong> (" + externalId + "),</p>" +
-               "<p>Following our automated risk intelligence review, Standard Bank CIB has authorized a dedicated corporate retention strategy:</p>" +
-               "<div style='background: #0f172a; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 16px 0;'>" +
-               "<p style='margin: 0; font-size: 14px;'><strong>Approved Concession:</strong> " + action + "</p>" +
-               "<p style='margin: 8px 0 0 0; font-size: 14px; color: #34d399;'><strong>Corporate Fee Discount:</strong> " + discount + "%</p>" +
+               "<h3 style='color: #f8fafc;'>Service Update & Complimentary Loyalty Concession</h3>" +
+               "<p>Dear <strong>" + customerName + "</strong> (" + externalId + "),</p>" +
+               "<p>We are reaching out to inform you that our Executive Operations Team is currently managing your service request and finalizing your resolution.</p>" +
+               "<p>We deeply value your partnership with Standard Bank. While our team completes your request, we want to thank you for your patience with a dedicated complimentary benefit:</p>" +
+               "<div style='background: #0f172a; padding: 18px; border-radius: 8px; border-left: 4px solid #38bdf8; margin: 20px 0;'>" +
+               "<p style='margin: 0; font-size: 15px; color: #38bdf8;'><strong>Complimentary Benefit:</strong> " + action + "</p>" +
+               "<p style='margin: 8px 0 0 0; font-size: 14px; color: #34d399;'><strong>Special Facility Concession:</strong> " + discount + "% Fee Credit</p>" +
                "</div>" +
-               "<p>A Senior CIB Relationship Manager (Sipho Dlamini) has been assigned to coordinate your merchant clearing and transactional facilities.</p>" +
-               "<p style='color: #94a3b8; font-size: 12px; margin-top: 24px;'>Confidential Notice - Standard Bank South Africa CIB Platform</p>" +
+               "<p>Senior Relationship Manager Sipho Dlamini is personally overseeing your account and will notify you as soon as full resolution is complete.</p>" +
+               "<p style='color: #94a3b8; font-size: 12px; margin-top: 24px;'>Standard Bank South Africa | Executive Client Care Desk</p>" +
                "</div></body></html>";
     }
 }

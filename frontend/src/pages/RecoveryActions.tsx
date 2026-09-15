@@ -243,7 +243,13 @@ export const RecoveryActions: React.FC = () => {
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">Select Sanisa Pilot Scenario</label>
               <select
                 value={selectedScenario}
-                onChange={(e) => setSelectedScenario(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSelectedScenario(val);
+                  if (val === 'anele') setTargetRecipient('zolani1999@gmail.com');
+                  if (val === 'apex') setTargetRecipient('vgnobookings@gmail.com');
+                  if (val === 'thabo') setTargetRecipient('uunderratedrecords@gmail.com');
+                }}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
               >
                 <option value="anele">Dr. Anele Nkosi (Private Client - 72h Investment Delay)</option>
@@ -259,8 +265,9 @@ export const RecoveryActions: React.FC = () => {
                 onChange={(e) => setTargetRecipient(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
               >
-                <option value="zolani1999@gmail.com">zolani1999@gmail.com (Primary Executive Inbox)</option>
-                <option value="vgnobookings@gmail.com">vgnobookings@gmail.com (Treasury Desk)</option>
+                <option value="zolani1999@gmail.com">zolani1999@gmail.com (Private Client - Dr. Anele Nkosi)</option>
+                <option value="vgnobookings@gmail.com">vgnobookings@gmail.com (Commercial SME - Apex Logistics)</option>
+                <option value="uunderratedrecords@gmail.com">uunderratedrecords@gmail.com (Everyday Banking - Thabo Khumalo)</option>
               </select>
             </div>
 
