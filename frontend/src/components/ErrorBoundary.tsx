@@ -31,19 +31,35 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="p-3 bg-rose-500/10 text-rose-400 rounded-full w-fit mx-auto">
               <AlertTriangle size={32} />
             </div>
-            <h2 className="text-xl font-bold">Standard Bank Retention Platform</h2>
+            <h2 className="text-xl font-bold">Retention Intelligence Platform</h2>
             <p className="text-sm text-slate-400">
-              An unexpected display error occurred. The system has automatically recovered fallback intelligence metrics.
+              An unexpected display error occurred. Click below to refresh your session.
             </p>
-            <button
-              onClick={() => {
-                this.setState({ hasError: false });
-                window.location.reload();
-              }}
-              className="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2 transition-all"
-            >
-              <RefreshCw size={16} /> Reload Portal
-            </button>
+            {this.state.error?.message && (
+              <div className="text-left bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs font-mono text-rose-300 break-words max-h-32 overflow-y-auto">
+                {this.state.error.message}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: undefined });
+                  window.location.reload();
+                }}
+                className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-indigo-600/30"
+              >
+                <RefreshCw size={16} /> Reload Portal
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.href = '/login';
+                }}
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-lg text-xs transition-colors"
+              >
+                Reset & Login
+              </button>
+            </div>
           </div>
         </div>
       );

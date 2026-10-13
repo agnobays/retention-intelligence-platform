@@ -68,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
 
   const isKasi = (companyName || '').toLowerCase().includes('kasi') || (industry || '').toLowerCase().includes('logistics');
   const isBank = (companyName || '').toLowerCase().includes('bank') || (industry || '').toLowerCase().includes('financial');
-  const dbSlug = (companyName || 'standard_bank_cib').replaceAll(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
+  const dbSlug = (companyName || 'standard_bank_cib').replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
   const isolatedDbName = `retention_${dbSlug}_db`;
 
   return (
