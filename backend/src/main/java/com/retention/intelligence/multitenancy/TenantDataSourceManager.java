@@ -23,17 +23,56 @@ public class TenantDataSourceManager {
     private final TenantRoutingDataSource routingDataSource;
     private final Map<String, HikariDataSource> tenantPools = new ConcurrentHashMap<>();
 
-    @Value("${SPRING_DATASOURCE_URL:${spring.datasource.url:}}")
+    @Value("${SPRING_DATASOURCE_URL:${DATABASE_URL:${DATABASE_PUBLIC_URL:${spring.datasource.url:}}}}")
     private String defaultDbUrl;
 
-    @Value("${SPRING_DATASOURCE_USERNAME:${spring.datasource.username:retention_user}}")
+    @Value("${SPRING_DATASOURCE_USERNAME:${PGUSER:${spring.datasource.username:retention_user}}}")
     private String defaultUsername;
 
-    @Value("${SPRING_DATASOURCE_PASSWORD:${spring.datasource.password:retention_password}}")
+    @Value("${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD:${spring.datasource.password:retention_password}}}")
     private String defaultPassword;
 
     public TenantDataSourceManager(TenantRoutingDataSource routingDataSource) {
         this.routingDataSource = routingDataSource;
+    }
+
+    private void resolveConnectionParameters() {
+        if (defaultDbUrl == null || defaultDbUrl.trim().isEmpty() || defaultDbUrl.contains("localhost")) {
+            String envDb = System.getenv("DATABASE_URL");
+            if (envDb == null || envDb.isBlank()) envDb = System.getenv("DATABASE_PUBLIC_URL");
+            if (envDb == null || envDb.isBlank()) envDb = System.getenv("SPRING_DATASOURCE_URL");
+
+            if (envDb != null && !envDb.isBlank()) {
+                defaultDbUrl = envDb;
+            } else if (System.getenv("PGHOST") != null && !System.getenv("PGHOST").isBlank()) {
+                String pHost = System.getenv("PGHOST");
+                String pPort = System.getenv("PGPORT") != null ? System.getenv("PGPORT") : "5432";
+                String pDb = System.getenv("PGDATABASE") != null ? System.getenv("PGDATABASE") : "railway";
+                defaultDbUrl = "jdbc:postgresql://" + pHost + ":" + pPort + "/" + pDb;
+                if (System.getenv("PGUSER") != null) defaultUsername = System.getenv("PGUSER");
+                if (System.getenv("PGPASSWORD") != null) defaultPassword = System.getenv("PGPASSWORD");
+            }
+        }
+
+        if (defaultDbUrl != null) {
+            String clean = defaultDbUrl.trim();
+            if (clean.startsWith("jdbc:")) clean = clean.substring(5);
+            if (clean.startsWith("postgres://") || clean.startsWith("postgresql://")) {
+                try {
+                    java.net.URI uri = new java.net.URI(clean);
+                    if (uri.getUserInfo() != null) {
+                        String[] parts = uri.getUserInfo().split(":");
+                        defaultUsername = parts[0];
+                        if (parts.length > 1) defaultPassword = parts[1];
+                    }
+                    int port = uri.getPort() == -1 ? 5432 : uri.getPort();
+                    String query = uri.getQuery() != null ? "?" + uri.getQuery() : "";
+                    defaultDbUrl = "jdbc:postgresql://" + uri.getHost() + ":" + port + uri.getPath() + query;
+                } catch (Exception ignored) {}
+            } else if (!defaultDbUrl.startsWith("jdbc:")) {
+                defaultDbUrl = "jdbc:" + defaultDbUrl;
+            }
+        }
     }
 
     /**
@@ -41,6 +80,7 @@ public class TenantDataSourceManager {
      * runs Flyway migrations, and adds the connection pool to routing.
      */
     public synchronized DataSource provisionTenantDatabase(String tenantId, String databaseName) {
+        resolveConnectionParameters();
         if (tenantPools.containsKey(tenantId)) {
             log.info("Tenant {} already has an active DataSource pool", tenantId);
             return tenantPools.get(tenantId);
@@ -88,6 +128,7 @@ public class TenantDataSourceManager {
     }
 
     private void createPhysicalDatabaseIfNotExists(String databaseName) {
+        resolveConnectionParameters();
         if (defaultDbUrl == null || !defaultDbUrl.contains("postgresql")) {
             log.debug("Skipping CREATE DATABASE: not running on PostgreSQL (URL: {})", defaultDbUrl);
             return;

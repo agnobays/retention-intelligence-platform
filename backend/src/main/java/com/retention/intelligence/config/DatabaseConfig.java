@@ -18,13 +18,13 @@ public class DatabaseConfig {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseConfig.class);
 
-    @Value("${SPRING_DATASOURCE_URL:${spring.datasource.url:}}")
+    @Value("${SPRING_DATASOURCE_URL:${DATABASE_URL:${DATABASE_PUBLIC_URL:${spring.datasource.url:}}}}")
     private String rawUrl;
 
-    @Value("${SPRING_DATASOURCE_USERNAME:${spring.datasource.username:retention_user}}")
+    @Value("${SPRING_DATASOURCE_USERNAME:${PGUSER:${spring.datasource.username:retention_user}}}")
     private String username;
 
-    @Value("${SPRING_DATASOURCE_PASSWORD:${spring.datasource.password:retention_password}}")
+    @Value("${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD:${spring.datasource.password:retention_password}}}")
     private String password;
 
     @Value("${spring.datasource.driver-class-name:org.postgresql.Driver}")
@@ -36,6 +36,27 @@ public class DatabaseConfig {
         String dbUrl = rawUrl;
         String dbUser = username;
         String dbPass = password;
+
+        // Check system environment variables directly (for Railway, Render, Fly.io)
+        if (dbUrl == null || dbUrl.trim().isEmpty() || dbUrl.contains("localhost")) {
+            String envDb = System.getenv("DATABASE_URL");
+            if (envDb == null || envDb.isBlank()) {
+                envDb = System.getenv("DATABASE_PUBLIC_URL");
+            }
+            if (envDb == null || envDb.isBlank()) {
+                envDb = System.getenv("SPRING_DATASOURCE_URL");
+            }
+            if (envDb != null && !envDb.isBlank()) {
+                dbUrl = envDb;
+            } else if (System.getenv("PGHOST") != null && !System.getenv("PGHOST").isBlank()) {
+                String pHost = System.getenv("PGHOST");
+                String pPort = System.getenv("PGPORT") != null ? System.getenv("PGPORT") : "5432";
+                String pDb = System.getenv("PGDATABASE") != null ? System.getenv("PGDATABASE") : "railway";
+                dbUrl = "jdbc:postgresql://" + pHost + ":" + pPort + "/" + pDb;
+                if (System.getenv("PGUSER") != null) dbUser = System.getenv("PGUSER");
+                if (System.getenv("PGPASSWORD") != null) dbPass = System.getenv("PGPASSWORD");
+            }
+        }
 
         if (dbUrl != null && !dbUrl.trim().isEmpty()) {
             String cleanUrl = dbUrl.trim();
@@ -55,7 +76,8 @@ public class DatabaseConfig {
                     }
                     int port = uri.getPort() == -1 ? 5432 : uri.getPort();
                     String path = uri.getPath();
-                    dbUrl = "jdbc:postgresql://" + uri.getHost() + ":" + port + path;
+                    String query = uri.getQuery() != null ? "?" + uri.getQuery() : "";
+                    dbUrl = "jdbc:postgresql://" + uri.getHost() + ":" + port + path + query;
                 } catch (Exception e) {
                     log.warn("Failed to parse database URI, falling back to prepending jdbc: {}", e.getMessage());
                     if (!dbUrl.startsWith("jdbc:")) {
