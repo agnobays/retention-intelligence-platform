@@ -3,7 +3,13 @@ import { Card } from '../components/Card';
 import { CustomerJourneyAuditLogs } from '../components/CustomerJourneyAuditLogs';
 import { BarChart3, TrendingUp, ShieldCheck } from 'lucide-react';
 
+import { useAuth } from '../contexts/AuthContext';
+
 export const Reports: React.FC = () => {
+  const { companyName, industry } = useAuth();
+  const isKasi = (companyName || '').toLowerCase().includes('kasi') || (industry || '').toLowerCase().includes('logistics');
+  const savedArrDisplay = isKasi ? 'R 8,400,000' : 'R 48,500,000';
+
   return (
     <div className="space-y-6">
       <div>
@@ -16,8 +22,8 @@ export const Reports: React.FC = () => {
           <div className="p-4 bg-dark-bg/50 rounded-lg flex items-center gap-4">
             <TrendingUp className="text-emerald-400" size={32} />
             <div>
-              <p className="text-sm text-slate-300">Total ARR Retained</p>
-              <h3 className="text-2xl font-bold text-slate-100">$345,000.00</h3>
+              <p className="text-sm text-slate-300">Total ARR Retained (ZAR)</p>
+              <h3 className="text-2xl font-bold text-slate-100">{savedArrDisplay}</h3>
               <p className="text-xs text-emerald-400 font-medium">+18.4% compared to last quarter</p>
             </div>
           </div>

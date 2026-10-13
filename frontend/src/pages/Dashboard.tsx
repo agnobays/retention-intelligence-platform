@@ -6,7 +6,7 @@ import { customerService } from '../services/customerService';
 import { detectionService } from '../services/detectionService';
 import { stressTestService, StressTestResult } from '../services/stressTestService';
 import { Customer, DashboardMetrics } from '../types';
-import { Users, AlertTriangle, DollarSign, Activity, Play, RefreshCw, Zap, ShieldAlert, Cpu, CheckCircle2, X } from 'lucide-react';
+import { Users, AlertTriangle, TrendingUp, Activity, Play, RefreshCw, Zap, ShieldAlert, Cpu, CheckCircle2, X } from 'lucide-react';
 
 import { useAuth } from '../contexts/AuthContext';
 
@@ -482,7 +482,7 @@ export const Dashboard: React.FC = () => {
               </h3>
             </div>
             <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
-              <DollarSign size={22} />
+              <TrendingUp size={22} />
             </div>
           </div>
         </Card>
