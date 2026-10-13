@@ -1,6 +1,10 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
+  const envUrl = (import.meta as any).env?.VITE_API_BASE_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.replace(/\/+$/, '') + (envUrl.includes('/api/v1') ? '' : '/api/v1');
+  }
   if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:8080/api/v1';
   }
