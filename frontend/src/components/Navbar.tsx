@@ -25,7 +25,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen = false }) => {
-  const { userEmail, userRole, logout } = useAuth();
+  const { userEmail, userRole, companyId, companyName, industry, logout } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -66,41 +66,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
     setSelectedNotif(item);
   };
 
-  const [activeTenantId, setActiveTenantId] = useState<string>(() => {
-    return localStorage.getItem('active_tenant_id') || '11111111-1111-1111-1111-111111111111';
-  });
-
-  const tenants = [
-    {
-      id: '11111111-1111-1111-1111-111111111111',
-      name: 'Standard Bank CIB',
-      industry: 'FINANCIAL_SERVICES',
-      icon: '🏦',
-      badge: 'CIB Enterprise'
-    },
-    {
-      id: '88888888-8888-8888-8888-888888888888',
-      name: 'Kasi Express Logistics',
-      industry: 'LOGISTICS_COLD_CHAIN',
-      icon: '🚚',
-      badge: 'Local Business Benchmark'
-    }
-  ];
-
-  const currentTenant = tenants.find(t => t.id === activeTenantId) || tenants[0];
-
-  const handleSelectTenant = (tenantId: string) => {
-    setActiveTenantId(tenantId);
-    localStorage.setItem('active_tenant_id', tenantId);
-    window.dispatchEvent(new CustomEvent('tenant-changed', { detail: { tenantId } }));
-  };
+  const isKasi = (companyName || '').toLowerCase().includes('kasi') || (industry || '').toLowerCase().includes('logistics');
+  const isBank = (companyName || '').toLowerCase().includes('bank') || (industry || '').toLowerCase().includes('financial');
+  const dbSlug = (companyName || 'standard_bank_cib').replaceAll(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
+  const isolatedDbName = `retention_${dbSlug}_db`;
 
   return (
     <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* Logo & Brand Identity + Mobile Menu Button */}
+          {/* Authenticated Tenant Brand Identity & Isolated DB Status */}
           <div className="flex items-center gap-2 sm:gap-3">
             {onToggleMobileMenu && (
               <button
@@ -113,31 +89,31 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
             )}
 
             <div 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/')}
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 shrink-0 cursor-pointer text-lg"
+              title={companyName || 'Corporate Tenant'}
             >
-              {currentTenant.icon}
+              {isKasi ? '🚚' : isBank ? '🏦' : '🏢'}
             </div>
             
             <div>
               <div className="flex items-center gap-2">
-                <select
-                  value={activeTenantId}
-                  onChange={(e) => handleSelectTenant(e.target.value)}
-                  className="bg-slate-800/90 text-slate-100 font-bold text-xs sm:text-sm rounded-lg px-2 py-1 border border-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-sm"
-                  title="Switch Isolated Tenant Database"
-                >
-                  {tenants.map(t => (
-                    <option key={t.id} value={t.id}>
-                      {t.icon} {t.name}
-                    </option>
-                  ))}
-                </select>
-                <span className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-md">
-                  {currentTenant.badge}
+                <span className="text-slate-100 font-bold text-xs sm:text-sm tracking-tight">
+                  {companyName || 'Standard Bank CIB'}
+                </span>
+                <span className={`hidden sm:inline-block px-2 py-0.5 text-[9px] font-semibold rounded-md border ${
+                  isKasi 
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                    : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                }`}>
+                  {industry || (isKasi ? 'LOGISTICS_COLD_CHAIN' : 'FINANCIAL_SERVICES')}
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Isolated Tenant DB: <span className="font-mono text-cyan-400">{activeTenantId.slice(0, 8)}...</span></p>
+              <p className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Isolated DB:</span> 
+                <span className="font-mono text-cyan-300 font-bold">{isolatedDbName}</span>
+              </p>
             </div>
           </div>
 
