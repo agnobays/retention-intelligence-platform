@@ -134,6 +134,34 @@ export const Onboarding: React.FC = () => {
 
       setTimeout(() => {
         addLog('Organization successfully initialized with isolated database!');
+        
+        // Record in Master Platform Monitor list
+        const dbSlug = (response.companyName || formData.companyName).replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
+        const newOrgEntry = {
+          id: response.companyId || `tenant-${Date.now()}`,
+          name: response.companyName || formData.companyName,
+          domain: formData.domain || `${dbSlug}.co.za`,
+          industry: response.industry || formData.industry,
+          tier: 'ENTERPRISE_DEDICATED',
+          isolatedDb: `retention_${dbSlug}_db`,
+          connectionPool: `HikariPool-${dbSlug}`,
+          activeConnections: 2,
+          idleConnections: 18,
+          totalCustomers: 12,
+          atRiskCount: 1,
+          monitoredArr: 15000000,
+          retainedArr: 12000000,
+          activeWorkflows: 1,
+          status: 'ACTIVE_HEALTHY',
+          lastHeartbeat: 'Just now',
+          telemetryThroughput: 35
+        };
+        try {
+          const prev = JSON.parse(localStorage.getItem('retention_onboarded_companies') || '[]');
+          const filtered = Array.isArray(prev) ? prev.filter((p: any) => p.name !== newOrgEntry.name) : [];
+          localStorage.setItem('retention_onboarded_companies', JSON.stringify([...filtered, newOrgEntry]));
+        } catch (e) {}
+
         // Automatically log user into their new isolated tenant!
         login(
           response.authToken,

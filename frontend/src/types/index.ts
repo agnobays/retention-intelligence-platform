@@ -46,6 +46,12 @@ export interface Customer {
   postRecoveryScore?: number;
   retentionOutcome?: string;
   contractRenewalDate?: string;
+  primaryRiskFactor?: string;
+  riskDrivers?: { name: string; impact: number; description: string }[];
+  activeWorkflowName?: string;
+  activeWorkflowStep?: string;
+  lastTelemetryTimestamp?: string;
+  telemetryLogs?: { timestamp: string; event: string; severity: string; scoreDelta: number }[];
 }
 
 export interface CustomerValueScore {

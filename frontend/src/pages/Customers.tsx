@@ -21,7 +21,10 @@ import {
   CreditCard 
 } from 'lucide-react';
 
+import { useAuth } from '../contexts/AuthContext';
+
 export const Customers: React.FC = () => {
+  const { companyName, companyId, industry } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [segmentFilter, setSegmentFilter] = useState<string>('ALL');
@@ -43,7 +46,7 @@ export const Customers: React.FC = () => {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const res = await customerService.getAllCustomers();
+      const res = await customerService.getAllCustomers(companyName || undefined);
       setCustomers(res);
     } catch (err) {
       console.error('Failed to fetch customers:', err);
@@ -54,7 +57,7 @@ export const Customers: React.FC = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [companyName, companyId]);
 
   const handleEvaluateCustomer = async (customerId: string, name: string) => {
     try {

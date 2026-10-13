@@ -88,13 +88,97 @@ export const FALLBACK_CUSTOMERS: Customer[] = [
   },
 ];
 
+export const FALLBACK_KASI_CUSTOMERS: Customer[] = [
+  {
+    id: 'k-101',
+    externalCustomerId: 'KEL-FLEET-301',
+    name: 'Soweto Fresh Wholesalers',
+    email: 'operations@sowetofresh.co.za',
+    mrr: 180000,
+    arr: 2160000,
+    healthScore: 28,
+    churnProbability: 82,
+    frustrationScore: 82,
+    status: 'AT_RISK',
+    companyId: 'comp-kel-01',
+    companyName: 'Kasi Express Logistics',
+    customerSegment: 'ENTERPRISE_FLEET',
+    riskFactor: 'Cold-chain temperature breach (>6°C on FMCG dairy run)',
+    notes: 'Triggered automated R5,000 Shell Fuel Card rebate & Fleet Director escalation.',
+  },
+  {
+    id: 'k-102',
+    externalCustomerId: 'KEL-FLEET-302',
+    name: 'Alex Cold Storage Depot',
+    email: 'logistics@alexcold.co.za',
+    mrr: 79166,
+    arr: 950000,
+    healthScore: 44,
+    churnProbability: 68,
+    frustrationScore: 68,
+    status: 'RECOVERING',
+    companyId: 'comp-kel-01',
+    companyName: 'Kasi Express Logistics',
+    customerSegment: 'COMMERCIAL_SME',
+    riskFactor: 'Refrigerated vehicle compressor failure delay',
+    notes: 'Free maintenance inspection scheduled and fuel discount applied.',
+  },
+  {
+    id: 'k-103',
+    externalCustomerId: 'KEL-FLEET-303',
+    name: 'Tembisa Quick Foods',
+    email: 'dispatch@tembisafoods.co.za',
+    mrr: 116666,
+    arr: 1400000,
+    healthScore: 52,
+    churnProbability: 59,
+    frustrationScore: 59,
+    status: 'AT_RISK',
+    companyId: 'comp-kel-01',
+    companyName: 'Kasi Express Logistics',
+    customerSegment: 'COMMERCIAL_SME',
+    riskFactor: 'High delivery turn-around SLA breach on weekend route',
+    notes: 'Priority routing token dispatched via Camunda 7 process.',
+  },
+  {
+    id: 'k-104',
+    externalCustomerId: 'KEL-FLEET-304',
+    name: 'Pretoria Fresh Logistics',
+    email: 'procurement@pretoriafresh.co.za',
+    mrr: 233333,
+    arr: 2800000,
+    healthScore: 91,
+    churnProbability: 9,
+    frustrationScore: 9,
+    status: 'HEALTHY',
+    companyId: 'comp-kel-01',
+    companyName: 'Kasi Express Logistics',
+    customerSegment: 'ENTERPRISE_FLEET',
+    riskFactor: 'None',
+    notes: 'Consistent sub-zero temperature delivery telemetry.',
+  },
+];
+
+export const getFallbackCustomersForTenant = (companyName?: string | null): Customer[] => {
+  const isKasi = (companyName || '').toLowerCase().includes('kasi') || 
+                 (typeof window !== 'undefined' && (localStorage.getItem('active_tenant_name') || '').toLowerCase().includes('kasi'));
+  return isKasi ? FALLBACK_KASI_CUSTOMERS : FALLBACK_CUSTOMERS;
+};
+
 export const FALLBACK_COMPANIES: Company[] = [
   {
     id: 'comp-sb-01',
     name: 'Standard Bank Corporate & Investment Banking',
     domain: 'standardbank.co.za',
     tenantId: 'TENANT-SB-CIB',
-    customerCount: 6,
+    customerCount: 5,
+  },
+  {
+    id: 'comp-kel-01',
+    name: 'Kasi Express Logistics',
+    domain: 'kasiexpress.co.za',
+    tenantId: 'TENANT-KEL',
+    customerCount: 4,
   },
 ];
 

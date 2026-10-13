@@ -11,15 +11,17 @@ import {
   Settings,
   GitBranch,
   LogOut,
-  X
+  X,
+  Server
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
   { path: '/', label: 'Executive Dashboard', icon: LayoutDashboard },
+  { path: '/platform-monitor', label: 'Platform Monitor (All Orgs)', icon: Server },
+  { path: '/companies', label: 'My Organization', icon: Building2 },
   { path: '/acquisition', label: 'Acquisition Pipeline', icon: UserPlus },
   { path: '/customers', label: 'Retention Portfolio', icon: Users },
-  { path: '/companies', label: 'Companies', icon: Building2 },
   { path: '/detection', label: 'Detection Rules', icon: Activity },
   { path: '/recovery', label: 'Recovery Actions', icon: PlayCircle },
   { path: '/reports', label: 'Analytics Reports', icon: BarChart3 },
@@ -32,8 +34,20 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMobile }) => {
-  const { logout } = useAuth();
+  const { logout, userRole, userEmail } = useAuth();
   const navigate = useNavigate();
+
+  const isSuperAdmin = userRole === 'SUPER_ADMIN' || 
+                       userEmail === 'owner@retention.ai' || 
+                       userEmail === 'superadmin@retention.ai' ||
+                       userEmail === 'zolani1999@gmail.com';
+
+  const visibleNavItems = navItems.filter(item => {
+    if (item.path === '/platform-monitor') {
+      return isSuperAdmin;
+    }
+    return true;
+  });
 
   const handleLogout = () => {
     logout();
@@ -57,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
             </button>
           )}
         </div>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const Icon = item.icon;
           return (
             <NavLink

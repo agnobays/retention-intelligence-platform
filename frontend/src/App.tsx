@@ -14,12 +14,24 @@ import { Reports } from './pages/Reports';
 import { Acquisition } from './pages/Acquisition';
 import { Settings } from './pages/Settings';
 import { Onboarding } from './pages/Onboarding';
+import { MasterPlatformMonitor } from './pages/MasterPlatformMonitor';
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+const SuperAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, userRole, userEmail } = useAuth();
+  const isSuperAdmin = userRole === 'SUPER_ADMIN' || 
+                       userEmail === 'owner@retention.ai' || 
+                       userEmail === 'superadmin@retention.ai' ||
+                       userEmail === 'zolani1999@gmail.com';
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isSuperAdmin) return <Navigate to="/" replace />;
+  return <>{children}</>;
 };
 
 export const App: React.FC = () => {
@@ -44,6 +56,14 @@ export const App: React.FC = () => {
                 <Route path="customers" element={<Customers />} />
                 <Route path="acquisition" element={<Acquisition />} />
                 <Route path="companies" element={<Companies />} />
+                <Route 
+                  path="platform-monitor" 
+                  element={
+                    <SuperAdminRoute>
+                      <MasterPlatformMonitor />
+                    </SuperAdminRoute>
+                  } 
+                />
                 <Route path="detection" element={<DetectionRules />} />
                 <Route path="recovery" element={<RecoveryActions />} />
                 <Route path="reports" element={<Reports />} />

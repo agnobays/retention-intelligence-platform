@@ -6,6 +6,8 @@ import { workflowService, WorkflowTask } from '../services/workflowService';
 import { apiClient } from '../services/apiClient';
 import { CheckCircle2, XCircle, RefreshCw, ShieldAlert, Mail, Send, Bot, Sparkles, Clock, AlertTriangle } from 'lucide-react';
 
+import { useAuth } from '../contexts/AuthContext';
+
 interface AiEmailPreview {
   subject: string;
   htmlContent: string;
@@ -14,13 +16,16 @@ interface AiEmailPreview {
 }
 
 export const RecoveryActions: React.FC = () => {
+  const { companyName, industry } = useAuth();
+  const isKasi = (companyName || '').toLowerCase().includes('kasi') || (industry || '').toLowerCase().includes('logistics');
+
   const [tasks, setTasks] = useState<WorkflowTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
 
   // Immediate email trigger state
   const [targetRecipient, setTargetRecipient] = useState<string>('zolani1999@gmail.com');
-  const [targetCustomer, setTargetCustomer] = useState<string>('Shoprite Holdings Ltd');
+  const [targetCustomer, setTargetCustomer] = useState<string>(isKasi ? 'Soweto Fresh Wholesalers' : 'Shoprite Holdings Ltd');
   const [sendingEmail, setSendingEmail] = useState<boolean>(false);
 
   // AI Autonomous Agent State
@@ -79,16 +84,20 @@ export const RecoveryActions: React.FC = () => {
           reward = '5,000 Loyalty Bonus Points';
         }
 
+        const orgName = companyName || (isKasi ? 'Kasi Express Logistics' : 'Standard Bank CIB');
+        const deskHeader = isKasi ? 'Kasi Express Fleet Retention Desk' : 'Standard Bank Executive CIB Desk';
+        const assignedManager = isKasi ? 'Operations Director (Kasi Express)' : 'Relationship Manager (Sipho Dlamini)';
+
         setAiPreview({
-          subject: `Standard Bank Tailored Retention Resolution for ${clientName}`,
+          subject: `${orgName} Tailored Retention Resolution for ${clientName}`,
           htmlContent: `<div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f1f5f9; padding: 25px; border-radius: 10px; border: 1px solid #1e293b;">
-            <h2 style="color: #38bdf8; margin-top: 0;">Standard Bank Executive CIB Desk</h2>
+            <h2 style="color: #38bdf8; margin-top: 0;">${deskHeader}</h2>
             <p>Dear <strong>${clientName}</strong>,</p>
             <p>Our Autonomous AI Retention Desk registered an elevated frustration signal regarding your issue: <strong>"${issue}"</strong>.</p>
             <p style="background: #1e1b4b; padding: 15px; border-radius: 8px; border: 1px solid #6366f1; color: #a5b4fc;">
               🎁 <strong>Loyalty Concession Voucher:</strong> ${reward}
             </p>
-            <p>Your Relationship Manager (Sipho Dlamini) has been assigned to track this ticket until full closure.</p>
+            <p>Your dedicated lead (${assignedManager}) has been assigned to track this ticket until full closure.</p>
           </div>`,
           textSummary: `Custom AI Email generated for ${clientName} addressing '${issue}'. Reward: ${reward}`,
           followUpSchedule: `Follow-up check-in #1 scheduled in 24 hours until ticket closure.`

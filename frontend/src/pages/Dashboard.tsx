@@ -25,52 +25,107 @@ export const Dashboard: React.FC = () => {
       companyId: companyId || '11111111-1111-1111-1111-111111111111',
       externalCustomerId: 'SB-CIB-1001',
       name: 'Shoprite Holdings Ltd',
+      email: 'treasury@shoprite.co.za',
       arr: 3000000,
+      mrr: 250000,
       healthScore: 35,
       churnProbability: 85,
       frustrationScore: 85,
       status: 'AT_RISK',
       customerSegment: 'CORPORATE_CIB',
-      createdAt: '2026-01-15'
+      createdAt: '2026-01-15',
+      primaryRiskFactor: '45% volume decay in corporate clearing transactions',
+      riskDrivers: [
+        { name: 'Transaction Volume Decay', impact: 45, description: 'Clearing volume decreased by 45% month-on-month' },
+        { name: 'Host-to-Host Gateway Latency', impact: 30, description: 'Average clearing response time exceeded 3,500ms' },
+        { name: 'Unresolved Relationship Tickets', impact: 25, description: 'Treasury desk query open for 72+ hours without resolution' }
+      ],
+      activeWorkflowName: 'CustomerRecoveryProcess.bpmn',
+      activeWorkflowStep: 'Senior Relationship Manager Escalation & Fee Restructuring',
+      telemetryLogs: [
+        { timestamp: '10 mins ago', event: 'Clearing drop detected: 14,200 txn/day -> 7,810 txn/day', severity: 'CRITICAL', scoreDelta: 35 },
+        { timestamp: '2 hours ago', event: 'Host-to-Host connection timeout on corporate batch', severity: 'HIGH', scoreDelta: 20 },
+        { timestamp: '1 day ago', event: 'Service ticket opened: Treasury portal latency escalation', severity: 'MEDIUM', scoreDelta: 15 }
+      ]
     },
     {
       id: 'c2',
       companyId: companyId || '11111111-1111-1111-1111-111111111111',
       externalCustomerId: 'SB-CIB-1002',
       name: 'Sasol Energy Ltd',
+      email: 'treasury@sasol.com',
       arr: 4500000,
+      mrr: 375000,
       healthScore: 42,
       churnProbability: 72,
       frustrationScore: 72,
       status: 'RECOVERING',
       customerSegment: 'CORPORATE_CIB',
-      createdAt: '2026-02-10'
+      createdAt: '2026-02-10',
+      primaryRiskFactor: 'Host-to-Host API timeouts & trade finance fee dispute',
+      riskDrivers: [
+        { name: 'Trade Finance Billing Dispute', impact: 40, description: 'Disputed cross-border documentary letter of credit fee' },
+        { name: 'API Latency Timeouts', impact: 35, description: '5 consecutive API gateway timeouts during peak settlement' },
+        { name: 'Competitor RFP Notice', impact: 25, description: 'RFP submitted for offshore cash pooling mandate' }
+      ],
+      activeWorkflowName: 'CustomerRecoveryProcess.bpmn',
+      activeWorkflowStep: 'Executive Fee Rebate Concession & Dedicated Technical Desk',
+      telemetryLogs: [
+        { timestamp: '30 mins ago', event: 'Automatic fee waiver proposal drafted (R15,000 credit)', severity: 'MEDIUM', scoreDelta: -10 },
+        { timestamp: '4 hours ago', event: 'API timeout reported on cross-border clearing bridge', severity: 'HIGH', scoreDelta: 25 }
+      ]
     },
     {
       id: 'c3',
       companyId: companyId || '11111111-1111-1111-1111-111111111111',
       externalCustomerId: 'SB-CIB-1003',
       name: 'MTN Group Corporate',
+      email: 'treasury@mtn.com',
       arr: 5200000,
+      mrr: 433333,
       healthScore: 55,
       churnProbability: 64,
       frustrationScore: 64,
       status: 'AT_RISK',
       customerSegment: 'ENTERPRISE',
-      createdAt: '2026-03-01'
+      createdAt: '2026-03-01',
+      primaryRiskFactor: 'FX liquidity constraints and delayed forex matching',
+      riskDrivers: [
+        { name: 'FX Settlement Delay', impact: 45, description: 'Delayed foreign exchange matching for Pan-African remit' },
+        { name: 'Contract Renewal Proximity', impact: 35, description: 'Master Services Agreement expires in 45 days' },
+        { name: 'Executive Inactivity', impact: 20, description: 'No quarterly executive business review logged in 60 days' }
+      ],
+      activeWorkflowName: 'ExecutiveEscalationProcess.bpmn',
+      activeWorkflowStep: 'C-Suite Account Executive Lunch & Renewal Concession Proposal',
+      telemetryLogs: [
+        { timestamp: '1 hour ago', event: 'Forex liquidity order pending match for >120 seconds', severity: 'HIGH', scoreDelta: 20 },
+        { timestamp: '2 days ago', event: 'Automated contract renewal reminder sent to Treasury VP', severity: 'LOW', scoreDelta: 5 }
+      ]
     },
     {
       id: 'c4',
       companyId: companyId || '11111111-1111-1111-1111-111111111111',
       externalCustomerId: 'SB-CIB-1004',
       name: 'Anglo American Corp',
+      email: 'mining.treasury@angloamerican.com',
       arr: 8200000,
+      mrr: 683333,
       healthScore: 88,
       churnProbability: 12,
       frustrationScore: 12,
       status: 'ACTIVE',
       customerSegment: 'CORPORATE_CIB',
-      createdAt: '2026-01-20'
+      createdAt: '2026-01-20',
+      primaryRiskFactor: 'Healthy account with steady high-volume clearing',
+      riskDrivers: [
+        { name: 'High Platform Adoption', impact: 90, description: 'Utilizing automated cash pooling & multi-currency escrow' },
+        { name: 'SLA Adherence', impact: 95, description: '99.98% clearing SLA maintained over rolling 90 days' }
+      ],
+      activeWorkflowName: 'ChurnPreventionSurveyProcess.bpmn',
+      activeWorkflowStep: 'Periodic Executive Net Promoter Score Survey (Satisfied)',
+      telemetryLogs: [
+        { timestamp: '15 mins ago', event: 'Clearing heartbeat OK: 32,450 corporate transactions processed', severity: 'LOW', scoreDelta: 0 }
+      ]
     }
   ];
 
@@ -80,52 +135,106 @@ export const Dashboard: React.FC = () => {
       companyId: companyId || '88888888-8888-8888-8888-888888888888',
       externalCustomerId: 'KEL-FLEET-301',
       name: 'Soweto Fresh Wholesalers',
+      email: 'operations@sowetofresh.co.za',
       arr: 2160000,
+      mrr: 180000,
       healthScore: 28,
       churnProbability: 82,
       frustrationScore: 82,
       status: 'AT_RISK',
       customerSegment: 'ENTERPRISE_FLEET',
-      createdAt: '2026-02-14'
+      createdAt: '2026-02-14',
+      primaryRiskFactor: 'Cold-chain refrigeration temperature breach (>6.8°C on route)',
+      riskDrivers: [
+        { name: 'Cold-Chain Temperature Breach', impact: 50, description: 'Compartment exceeded +4°C threshold for 3.5 hours on N1 route' },
+        { name: 'FMCG Delivery Window Delay', impact: 30, description: 'Perishable poultry delivery arrived 4 hours late' },
+        { name: 'Fuel Surcharge Dispute', impact: 20, description: 'Disputed diesel fuel indexing on invoice #KEL-912' }
+      ],
+      activeWorkflowName: 'CustomerRecoveryProcess.bpmn',
+      activeWorkflowStep: 'Automated R5,000 Shell Fuel Card Concession & Fleet Director Outreach',
+      telemetryLogs: [
+        { timestamp: '15 mins ago', event: 'IoT Sensor ALERT: Compartment temp reached +6.8°C (Threshold: +4.0°C)', severity: 'CRITICAL', scoreDelta: 45 },
+        { timestamp: '1 hour ago', event: 'GPS Telemetry: Delivery route delayed by 4 hours on Soweto corridor', severity: 'HIGH', scoreDelta: 25 },
+        { timestamp: '3 hours ago', event: 'Automated fuel rebate token dispatched via Camunda 7 engine', severity: 'MEDIUM', scoreDelta: -10 }
+      ]
     },
     {
       id: 'k2',
       companyId: companyId || '88888888-8888-8888-8888-888888888888',
       externalCustomerId: 'KEL-FLEET-302',
       name: 'Alex Cold Storage Depot',
+      email: 'logistics@alexcold.co.za',
       arr: 950000,
+      mrr: 79166,
       healthScore: 44,
       churnProbability: 68,
       frustrationScore: 68,
       status: 'RECOVERING',
       customerSegment: 'COMMERCIAL_SME',
-      createdAt: '2026-03-05'
+      createdAt: '2026-03-05',
+      primaryRiskFactor: 'Refrigerated vehicle compressor breakdown delay',
+      riskDrivers: [
+        { name: 'Compressor Failure SLA Breach', impact: 45, description: 'Refrigeration unit failure caused 5-hour loading delay' },
+        { name: 'Driver Turnaround Time', impact: 35, description: 'Depot queue turnaround exceeded 45 minutes target' },
+        { name: 'Invoice Processing Latency', impact: 20, description: 'Proof of Delivery POD upload delayed by 48 hours' }
+      ],
+      activeWorkflowName: 'CustomerRecoveryProcess.bpmn',
+      activeWorkflowStep: 'Priority Loading Dock Access & Maintenance Rebate',
+      telemetryLogs: [
+        { timestamp: '45 mins ago', event: 'Fleet mechanic dispatched for on-site compressor inspection', severity: 'MEDIUM', scoreDelta: -15 },
+        { timestamp: '5 hours ago', event: 'Sensor warning: Loading dock temperature fluctuation detected', severity: 'HIGH', scoreDelta: 20 }
+      ]
     },
     {
       id: 'k3',
       companyId: companyId || '88888888-8888-8888-8888-888888888888',
       externalCustomerId: 'KEL-FLEET-303',
       name: 'Tembisa Quick Foods',
+      email: 'dispatch@tembisafoods.co.za',
       arr: 1400000,
+      mrr: 116666,
       healthScore: 52,
       churnProbability: 59,
       frustrationScore: 59,
       status: 'AT_RISK',
       customerSegment: 'COMMERCIAL_SME',
-      createdAt: '2026-03-12'
+      createdAt: '2026-03-12',
+      primaryRiskFactor: 'Delivery turn-around SLA breach on weekend route',
+      riskDrivers: [
+        { name: 'Weekend Route Delay', impact: 55, description: 'Saturday replenishment delivery delayed past store opening' },
+        { name: 'POD Digital Signature Failure', impact: 25, description: 'Mobile scanner offline during delivery handover' },
+        { name: 'Customer Service Inactivity', impact: 20, description: 'Callback request pending for 24 hours' }
+      ],
+      activeWorkflowName: 'CustomerRecoveryProcess.bpmn',
+      activeWorkflowStep: 'Priority Routing Token Dispatched via Camunda BPMN',
+      telemetryLogs: [
+        { timestamp: '2 hours ago', event: 'GPS tracking alert: Vehicle stuck in transit, SLA window compromised', severity: 'HIGH', scoreDelta: 25 }
+      ]
     },
     {
       id: 'k4',
       companyId: companyId || '88888888-8888-8888-8888-888888888888',
       externalCustomerId: 'KEL-FLEET-304',
       name: 'Pretoria Fresh Logistics',
+      email: 'procurement@pretoriafresh.co.za',
       arr: 2800000,
+      mrr: 233333,
       healthScore: 91,
       churnProbability: 9,
       frustrationScore: 9,
       status: 'ACTIVE',
       customerSegment: 'ENTERPRISE_FLEET',
-      createdAt: '2026-01-10'
+      createdAt: '2026-01-10',
+      primaryRiskFactor: 'Consistent sub-zero temperature delivery telemetry',
+      riskDrivers: [
+        { name: 'Perfect Temperature Adherence', impact: 98, description: 'All cargo maintained between -18°C and -22°C continuously' },
+        { name: 'On-Time Delivery Rate', impact: 96, description: '99.4% on-time delivery across 140 journeys this month' }
+      ],
+      activeWorkflowName: 'ChurnPreventionSurveyProcess.bpmn',
+      activeWorkflowStep: 'Quarterly Preferred Client Loyalty Discount Applied',
+      telemetryLogs: [
+        { timestamp: '30 mins ago', event: 'Sub-zero telemetry verified: -19.4°C constant across all sensors', severity: 'LOW', scoreDelta: 0 }
+      ]
     }
   ];
 
@@ -151,6 +260,7 @@ export const Dashboard: React.FC = () => {
   const [runningStressTest, setRunningStressTest] = useState(false);
   const [stressResult, setStressResult] = useState<StressTestResult | null>(null);
   const [showStressModal, setShowStressModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
     setCustomers(isKasi ? defaultKasiCustomers : defaultBankCustomers);
@@ -424,9 +534,19 @@ export const Dashboard: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-dark-border text-xs">
                 {highRiskCustomers.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-4 py-3 font-mono text-slate-400">{c.externalCustomerId}</td>
-                    <td className="px-4 py-3 font-semibold text-slate-100">{c.name}</td>
+                  <tr 
+                    key={c.id} 
+                    onClick={() => setSelectedCustomer(c)}
+                    className="hover:bg-slate-800/60 transition-colors cursor-pointer group"
+                    title="Click row to inspect explainable risk drivers & Camunda workflow"
+                  >
+                    <td className="px-4 py-3 font-mono text-slate-400">
+                      <span className="flex items-center gap-1.5">
+                        {c.externalCustomerId}
+                        <span className="opacity-0 group-hover:opacity-100 text-indigo-400 text-[10px] transition-opacity">↗</span>
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-100 group-hover:text-indigo-300 transition-colors">{c.name}</td>
                     <td className="px-4 py-3">R {c.arr.toLocaleString('en-ZA')}</td>
                     <td className="px-4 py-3 font-medium text-amber-400">{c.healthScore}/100</td>
                     <td className="px-4 py-3 font-semibold text-rose-400">{c.churnProbability}%</td>
@@ -520,6 +640,167 @@ export const Dashboard: React.FC = () => {
                 className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all"
               >
                 Close Benchmark Report
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* 🔍 INTERACTIVE CUSTOMER EXPLAINABLE RISK & MITIGATION MODAL */}
+      {selectedCustomer && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="w-full max-w-2xl bg-slate-900 border border-indigo-500/40 rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-2xl text-xl font-bold flex items-center justify-center ${
+                  selectedCustomer.churnProbability > 70 
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' 
+                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                }`}>
+                  {isKasi ? '🚚' : isBank ? '🏦' : '🏢'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-100">{selectedCustomer.name}</h3>
+                    <Badge status={selectedCustomer.status} />
+                  </div>
+                  <p className="text-xs text-slate-400 font-mono mt-0.5">
+                    ID: {selectedCustomer.externalCustomerId} | ARR: R {selectedCustomer.arr.toLocaleString('en-ZA')}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedCustomer(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Churn Risk & Health Meter */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Churn Probability</span>
+                <p className={`text-xl font-bold mt-1 ${selectedCustomer.churnProbability > 70 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                  {selectedCustomer.churnProbability}%
+                </p>
+              </div>
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Frustration Index</span>
+                <p className="text-xl font-bold text-amber-400 mt-1">
+                  {selectedCustomer.frustrationScore ?? selectedCustomer.churnProbability} / 100
+                </p>
+              </div>
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Customer Health Score</span>
+                <p className="text-xl font-bold text-cyan-400 mt-1">
+                  {selectedCustomer.healthScore} / 100
+                </p>
+              </div>
+            </div>
+
+            {/* Explainable Risk Drivers (Why did the algorithm flag this?) */}
+            <div className="p-4 bg-slate-950/90 rounded-xl border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                  <ShieldAlert size={15} className="text-amber-400" />
+                  Algorithm Explainability: Churn Risk Drivers
+                </h4>
+                <span className="text-[10px] text-slate-400 font-mono">Weighted Multi-Signal Model</span>
+              </div>
+
+              {selectedCustomer.primaryRiskFactor && (
+                <div className="p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-lg text-xs text-rose-300 font-medium">
+                  Primary Trigger: {selectedCustomer.primaryRiskFactor}
+                </div>
+              )}
+
+              <div className="space-y-2.5 pt-1">
+                {(selectedCustomer.riskDrivers || [
+                  { name: 'Telemetry Volatility', impact: 60, description: 'Elevated friction detected across primary operational feed' },
+                  { name: 'SLA Variance', impact: 40, description: 'Expected SLA thresholds breached over rolling 14-day window' }
+                ]).map((driver, idx) => (
+                  <div key={idx} className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-semibold text-slate-200">{driver.name}</span>
+                      <span className="font-mono text-amber-400 font-bold">{driver.impact}% Impact</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-amber-500 to-rose-500 h-1.5 rounded-full" 
+                        style={{ width: `${driver.impact}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-[11px] text-slate-400">{driver.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Active Camunda 7 BPMN Workflow Progress */}
+            <div className="p-4 bg-indigo-950/20 border border-indigo-500/30 rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-300 uppercase">
+                  <Activity size={14} className="text-indigo-400" />
+                  <span>Camunda 7 BPMN Orchestration State</span>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  Execution Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-300">
+                Process Definition: <strong className="font-mono text-cyan-300">{selectedCustomer.activeWorkflowName || 'CustomerRecoveryProcess.bpmn'}</strong>
+              </p>
+              <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300">
+                <span className="text-slate-400">Current Task: </span>
+                <span className="font-semibold text-indigo-300">{selectedCustomer.activeWorkflowStep || 'Automated Concession & Relationship Manager Intervention'}</span>
+              </div>
+            </div>
+
+            {/* Real-time Telemetry Event Log */}
+            <div>
+              <p className="text-xs font-bold text-slate-300 mb-2">Sensor & Telemetry Event Log:</p>
+              <div className="space-y-1.5 max-h-32 overflow-y-auto bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
+                {(selectedCustomer.telemetryLogs || [
+                  { timestamp: 'Just now', event: 'Active telemetry stream synchronized with isolated tenant DB', severity: 'LOW', scoreDelta: 0 }
+                ]).map((log, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-1 border-b border-slate-900 last:border-0">
+                    <div>
+                      <span className="font-medium text-slate-200">{log.event}</span>
+                      <span className="text-[10px] text-slate-500 block font-mono">{log.timestamp}</span>
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${
+                      log.severity === 'CRITICAL' ? 'bg-rose-500/20 text-rose-300' :
+                      log.severity === 'HIGH' ? 'bg-amber-500/20 text-amber-300' :
+                      'bg-slate-800 text-slate-400'
+                    }`}>
+                      {log.severity}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+              <button
+                onClick={() => {
+                  setMessage(`⚡ Dispatched priority concession workflow for ${selectedCustomer.name}!`);
+                  setSelectedCustomer(null);
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white rounded-xl text-xs font-semibold shadow-md transition-all flex items-center gap-1.5"
+              >
+                <Zap size={14} /> Execute Concession Protocol
+              </button>
+
+              <button
+                onClick={() => setSelectedCustomer(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-colors"
+              >
+                Close Window
               </button>
             </div>
 

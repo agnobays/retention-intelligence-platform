@@ -1,28 +1,28 @@
 import { apiClient } from './apiClient';
 import { Customer } from '../types';
-import { FALLBACK_CUSTOMERS } from './fallbackData';
+import { getFallbackCustomersForTenant } from './fallbackData';
 
 export const customerService = {
-  getAllCustomers: async (): Promise<Customer[]> => {
+  getAllCustomers: async (companyName?: string): Promise<Customer[]> => {
     try {
       const response = await apiClient.get('/customers');
-      if (Array.isArray(response.data)) {
+      if (Array.isArray(response.data) && response.data.length > 0) {
         return response.data;
       }
-      return FALLBACK_CUSTOMERS;
+      return getFallbackCustomersForTenant(companyName);
     } catch {
-      return FALLBACK_CUSTOMERS;
+      return getFallbackCustomersForTenant(companyName);
     }
   },
-  getCustomersByCompany: async (companyId: string): Promise<Customer[]> => {
+  getCustomersByCompany: async (companyId: string, companyName?: string): Promise<Customer[]> => {
     try {
       const response = await apiClient.get(`/customers/company/${companyId}`);
-      if (Array.isArray(response.data)) {
+      if (Array.isArray(response.data) && response.data.length > 0) {
         return response.data;
       }
-      return FALLBACK_CUSTOMERS;
+      return getFallbackCustomersForTenant(companyName);
     } catch {
-      return FALLBACK_CUSTOMERS;
+      return getFallbackCustomersForTenant(companyName);
     }
   },
   importCustomer: async (customer: Partial<Customer>): Promise<Customer> => {
