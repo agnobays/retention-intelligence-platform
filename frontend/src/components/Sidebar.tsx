@@ -82,13 +82,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       </nav>
 
       <div className="space-y-3">
-        <div className="p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-lg">
-          <div className="flex items-center gap-2 text-xs text-indigo-300 font-semibold mb-1">
-            <GitBranch size={14} /> Workflow Engine
+        <div className="p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-lg space-y-1.5">
+          <div className="flex items-center justify-between text-xs text-indigo-300 font-semibold">
+            <span className="flex items-center gap-1.5"><GitBranch size={14} /> Workflow Engine</span>
+            <span className="text-[10px] bg-indigo-500/20 px-1.5 py-0.5 rounded text-indigo-200">Camunda 7</span>
           </div>
           <p className="text-[11px] text-slate-400">
-            CustomerRecoveryProcess.bpmn active on Camunda 7 engine.
+            Automated recovery & human approval workflows.
           </p>
+          <a
+            href="http://localhost:3001"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 block w-full text-center py-1.5 px-2 bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 rounded-md text-[11px] font-medium text-indigo-200 transition-all"
+          >
+            📊 Open Grafana (:3001)
+          </a>
         </div>
 
         <button
