@@ -91,10 +91,11 @@ export const Customers: React.FC = () => {
     }
   };
 
-  const filteredCustomers = customers.filter((c) => {
+  const filteredCustomers = (Array.isArray(customers) ? customers : []).filter((c) => {
+    if (!c) return false;
     const matchesSearch =
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.externalCustomerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.externalCustomerId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.customerSegment && c.customerSegment.toLowerCase().includes(searchTerm.toLowerCase()));
     
     if (segmentFilter === 'ALL') return matchesSearch;
@@ -309,7 +310,7 @@ SB-CIB-2003,FirstRand Group Treasury,payments@firstrand.co.za,COMMERCIAL_SME,15 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800 bg-slate-900">
-                    {batchResult.accounts.map((acc: any, i: number) => (
+                    {(batchResult?.accounts || []).map((acc: any, i: number) => (
                       <tr key={i}>
                         <td className="p-2 font-mono text-slate-400">{acc.externalCustomerId}</td>
                         <td className="p-2 font-semibold text-slate-100">{acc.customerName}</td>

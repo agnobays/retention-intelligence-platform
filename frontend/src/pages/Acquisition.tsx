@@ -61,8 +61,9 @@ export const Acquisition: React.FC = () => {
     }
   };
 
-  const activeLeads = leads.filter(l => l.status !== 'CONVERTED');
-  const convertedLeads = leads.filter(l => l.status === 'CONVERTED');
+  const safeLeads = Array.isArray(leads) ? leads : [];
+  const activeLeads = safeLeads.filter(l => l && l.status !== 'CONVERTED');
+  const convertedLeads = safeLeads.filter(l => l && l.status === 'CONVERTED');
   
   const conversionRate = leads.length > 0 
     ? ((convertedLeads.length / leads.length) * 100).toFixed(1)

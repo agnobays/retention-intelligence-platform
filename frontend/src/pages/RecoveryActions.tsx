@@ -416,7 +416,7 @@ export const RecoveryActions: React.FC = () => {
 
       <Card title="Pending Camunda User Tasks requiring Executive Approval">
         <div className="space-y-4">
-          {tasks.map((task) => (
+          {(tasks || []).map((task) => (
             <div
               key={task.taskId}
               className="p-4 border border-indigo-500/30 rounded-xl bg-indigo-950/20 flex items-center justify-between"

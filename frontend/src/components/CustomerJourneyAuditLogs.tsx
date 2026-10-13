@@ -33,7 +33,8 @@ export const CustomerJourneyAuditLogs: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filteredLogs = logs.filter((logItem) => {
+  const filteredLogs = (Array.isArray(logs) ? logs : []).filter((logItem) => {
+    if (!logItem) return false;
     const q = searchTerm.toLowerCase();
     return (
       logItem.sessionId?.toLowerCase().includes(q) ||

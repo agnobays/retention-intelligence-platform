@@ -42,7 +42,10 @@ const loadStoredNotifications = (): NotificationItem[] => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved !== null) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
     }
   } catch (e) {
     console.error('Error reading notifications from localStorage', e);
@@ -54,10 +57,13 @@ export function useRealtimeNotifications() {
   const [notifications, setNotificationsState] = useState<NotificationItem[]>(loadStoredNotifications);
   const [isConnected, setIsConnected] = useState(false);
 
+  const safeNotifications = Array.isArray(notifications) ? notifications : INITIAL_NOTIFICATIONS;
+
   const saveAndSetNotifications = (next: NotificationItem[]) => {
-    setNotificationsState(next);
+    const safeNext = Array.isArray(next) ? next : [];
+    setNotificationsState(safeNext);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safeNext));
     } catch (e) {
       console.error('Error saving notifications to localStorage', e);
     }
@@ -78,9 +84,9 @@ export function useRealtimeNotifications() {
         try {
           const data: NotificationItem = JSON.parse(event.data);
           setNotificationsState((prev) => {
-            // Deduplicate incoming events by ID or title
-            if (prev.some((n) => n.id === data.id)) return prev;
-            const updated = [data, ...prev];
+            const prevList = Array.isArray(prev) ? prev : [];
+            if (prevList.some((n) => n.id === data.id)) return prevList;
+            const updated = [data, ...prevList];
             try {
               localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
             } catch (e) {}
@@ -113,7 +119,7 @@ export function useRealtimeNotifications() {
   }, []);
 
   const markAllRead = () => {
-    const updated = notifications.map((n) => ({ ...n, read: true }));
+    const updated = safeNotifications.map((n) => ({ ...n, read: true }));
     saveAndSetNotifications(updated);
   };
 
@@ -122,18 +128,18 @@ export function useRealtimeNotifications() {
   };
 
   const markSingleRead = (id: string) => {
-    const updated = notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
+    const updated = safeNotifications.map((n) => (n.id === id ? { ...n, read: true } : n));
     saveAndSetNotifications(updated);
   };
 
   const addNotification = (notif: NotificationItem) => {
-    const updated = [notif, ...notifications];
+    const updated = [notif, ...safeNotifications];
     saveAndSetNotifications(updated);
   };
 
   return {
-    notifications,
-    unreadCount: notifications.filter((n) => !n.read).length,
+    notifications: safeNotifications,
+    unreadCount: safeNotifications.filter((n) => !n.read).length,
     isConnected,
     markAllRead,
     clearAll,
