@@ -66,13 +66,42 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
     setSelectedNotif(item);
   };
 
+  const [activeTenantId, setActiveTenantId] = useState<string>(() => {
+    return localStorage.getItem('active_tenant_id') || '11111111-1111-1111-1111-111111111111';
+  });
+
+  const tenants = [
+    {
+      id: '11111111-1111-1111-1111-111111111111',
+      name: 'Standard Bank CIB',
+      industry: 'FINANCIAL_SERVICES',
+      icon: '🏦',
+      badge: 'CIB Enterprise'
+    },
+    {
+      id: '88888888-8888-8888-8888-888888888888',
+      name: 'Kasi Express Logistics',
+      industry: 'LOGISTICS_COLD_CHAIN',
+      icon: '🚚',
+      badge: 'Local Business Benchmark'
+    }
+  ];
+
+  const currentTenant = tenants.find(t => t.id === activeTenantId) || tenants[0];
+
+  const handleSelectTenant = (tenantId: string) => {
+    setActiveTenantId(tenantId);
+    localStorage.setItem('active_tenant_id', tenantId);
+    window.dispatchEvent(new CustomEvent('tenant-changed', { detail: { tenantId } }));
+  };
+
   return (
     <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
           {/* Logo & Brand Identity + Mobile Menu Button */}
-          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+          <div className="flex items-center gap-2 sm:gap-3">
             {onToggleMobileMenu && (
               <button
                 onClick={onToggleMobileMenu}
@@ -85,19 +114,30 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileMenu, isMobileOpen
 
             <div 
               onClick={() => navigate('/dashboard')}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 shrink-0"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 shrink-0 cursor-pointer text-lg"
             >
-              <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              {currentTenant.icon}
             </div>
             
-            <div onClick={() => navigate('/dashboard')}>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-bold text-slate-100 text-sm sm:text-base tracking-tight">Standard Bank</span>
-                <span className="hidden xs:inline-block px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-md">
-                  Retention Intelligence
+            <div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={activeTenantId}
+                  onChange={(e) => handleSelectTenant(e.target.value)}
+                  className="bg-slate-800/90 text-slate-100 font-bold text-xs sm:text-sm rounded-lg px-2 py-1 border border-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-sm"
+                  title="Switch Isolated Tenant Database"
+                >
+                  {tenants.map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.icon} {t.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-md">
+                  {currentTenant.badge}
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-400">Sanisa Platform™ • Executive Desk</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">Isolated Tenant DB: <span className="font-mono text-cyan-400">{activeTenantId.slice(0, 8)}...</span></p>
             </div>
           </div>
 

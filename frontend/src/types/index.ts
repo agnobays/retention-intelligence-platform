@@ -22,6 +22,13 @@ export interface Customer {
   mrr: number;
   arr: number;
   healthScore: number;
+  
+  // Advanced ML and Value Modeling
+  predictiveLtv?: number;
+  sentimentScore?: number;
+  preferredContactMethod?: string;
+  abTestGroup?: string;
+
   frustrationScore?: number;
   satisfactionScore?: number;
   churnProbability: number;

@@ -20,6 +20,10 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    const activeTenantId = localStorage.getItem('active_tenant_id');
+    if (activeTenantId) {
+      config.headers['X-Tenant-ID'] = activeTenantId;
+    }
     return config;
   },
   (error) => Promise.reject(error)

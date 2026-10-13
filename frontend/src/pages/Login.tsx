@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/authService';
-import { ShieldCheck, ArrowRight, Building2 } from 'lucide-react';
+import { ArrowRight, Building2, UserPlus, Sparkles } from 'lucide-react';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('admin@standardbank.co.za');
@@ -18,7 +18,14 @@ export const Login: React.FC = () => {
     setLoading(true);
     try {
       const response = await authService.login(email, password);
-      login(response.token, response.email, response.role);
+      login(
+        response.token,
+        response.email,
+        response.role,
+        response.companyId,
+        response.companyName,
+        response.industry
+      );
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Authentication failed. Please check credentials.');
@@ -27,24 +34,60 @@ export const Login: React.FC = () => {
     }
   };
 
+  const handleSelectDemo = (demoEmail: string) => {
+    setEmail(demoEmail);
+    setPassword('Password123!');
+  };
+
   return (
-    <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-md glass-card rounded-2xl p-8 border border-white/10 shadow-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-brand-600/20 text-brand-500 rounded-xl border border-brand-500/30">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-2xl space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-gradient-to-tr from-indigo-600 to-cyan-500 text-white rounded-xl shadow-lg shadow-indigo-600/30">
             <Building2 size={28} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-100">Standard Bank CIB</h1>
-            <p className="text-xs text-slate-400">Retention Intelligence Platform</p>
+            <h1 className="text-xl font-bold text-slate-100">Retention Intelligence Platform</h1>
+            <p className="text-xs text-slate-400">Multi-Tenant Isolated Enterprise Access</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-400 text-xs font-medium">
+          <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-400 text-xs font-medium">
             {error}
           </div>
         )}
+
+        {/* Demo Fast Selection Bar */}
+        <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/80 space-y-2">
+          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Select Demo Business Login:</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => handleSelectDemo('admin@standardbank.co.za')}
+              className={`p-2 rounded-lg text-left text-xs transition-all border ${
+                email.includes('standard')
+                  ? 'border-indigo-500/50 bg-indigo-950/30 text-indigo-200'
+                  : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <div className="font-bold flex items-center gap-1">🏦 Standard Bank</div>
+              <div className="text-[10px] text-slate-500 truncate">Corporate CIB</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectDemo('manager@kasiexpress.co.za')}
+              className={`p-2 rounded-lg text-left text-xs transition-all border ${
+                email.includes('kasi')
+                  ? 'border-amber-500/50 bg-amber-950/30 text-amber-200'
+                  : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <div className="font-bold flex items-center gap-1">🚚 Kasi Logistics</div>
+              <div className="text-[10px] text-slate-500 truncate">Cold Chain Local Biz</div>
+            </button>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -53,7 +96,7 @@ export const Login: React.FC = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-dark-bg/80 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
+              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
               required
             />
           </div>
@@ -64,7 +107,7 @@ export const Login: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-dark-bg/80 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500"
+              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
               required
             />
           </div>
@@ -72,16 +115,23 @@ export const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/25 disabled:opacity-50 text-sm"
           >
-            {loading ? 'Authenticating...' : 'Sign In to Standard Bank Portal'} <ArrowRight size={16} />
+            {loading ? 'Authenticating...' : 'Sign In to Tenant Portal'} <ArrowRight size={16} />
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-800 text-center space-y-1">
-          <p className="text-xs text-slate-400 font-semibold">Demo Accounts (Standard Bank CIB):</p>
-          <p className="text-xs text-slate-500 font-mono">admin@standardbank.co.za / Password123!</p>
-          <p className="text-xs text-slate-500 font-mono">manager@standardbank.co.za / Password123!</p>
+        {/* Link to Onboarding Wizard */}
+        <div className="pt-4 border-t border-slate-800 text-center">
+          <p className="text-xs text-slate-400 mb-2">Need an isolated retention engine for your business?</p>
+          <button
+            type="button"
+            onClick={() => navigate('/onboarding')}
+            className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-indigo-200 border border-indigo-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+          >
+            <Sparkles size={14} className="text-indigo-400" />
+            <span>Onboard New Business (Create Isolated DB)</span>
+          </button>
         </div>
       </div>
     </div>

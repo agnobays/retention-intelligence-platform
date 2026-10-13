@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,17 +27,23 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    @Operation(summary = "Get All Customers", description = "Retrieves all monitored enterprise customers")
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
+    @Operation(summary = "Get All Customers", description = "Retrieves all monitored enterprise customers for the authenticated company")
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(@AuthenticationPrincipal com.retention.intelligence.security.UserPrincipal principal) {
         log.info("================================================================================");
-        log.info("📥 API REQUEST: GET /api/v1/customers - Fetching all corporate accounts");
+        log.info("📥 API REQUEST: GET /api/v1/customers - Fetching all corporate accounts for company {}", principal.getCompanyId());
         log.info("================================================================================");
-        return ResponseEntity.ok(customerService.getAllCustomers());
+        
+        if (principal.getRole() == com.retention.intelligence.security.Role.SUPER_ADMIN) {
+             return ResponseEntity.ok(customerService.getAllCustomers());
+        }
+        return ResponseEntity.ok(customerService.getCustomersByCompany(principal.getCompanyId()));
     }
 
     @GetMapping("/company/{companyId}")
+    @PreAuthorize("hasRole('SUPER_ADMIN') or (hasAnyRole('COMPANY_ADMIN', 'MANAGER', 'ANALYST') and #companyId == authentication.principal.companyId)")
     @Operation(summary = "Get Customer List by Company", description = "Retrieves customers by company ID")
-    public ResponseEntity<List<CustomerDTO>> getCustomersByCompany(@PathVariable UUID companyId) {
+    public ResponseEntity<List<CustomerDTO>> getCustomersByCompany(@PathVariable java.util.UUID companyId) {
         log.info("📥 API REQUEST: GET /api/v1/customers/company/{}", companyId);
         return ResponseEntity.ok(customerService.getCustomersByCompany(companyId));
     }
@@ -50,11 +58,13 @@ public class CustomerController {
     }
 
     @PostMapping({"/import-batch", "/batch-import", "/import-spreadsheet", "/batch"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Import Spreadsheet Corporate Accounts", description = "Analyzes batch corporate CSV rows, evaluates churn risk, and auto-triggers Camunda 7 BPMN workflows")
-    public ResponseEntity<BatchImportResultDTO> importSpreadsheetBatch(@RequestBody List<CustomerDTO> batchList) {
+    public java.util.concurrent.CompletableFuture<ResponseEntity<BatchImportResultDTO>> importSpreadsheetBatch(@RequestBody List<CustomerDTO> batchList) {
         log.info("================================================================================");
         log.info("📥 API REQUEST: POST /api/v1/customers/import-batch - Analyzing {} spreadsheet rows", batchList != null ? batchList.size() : 0);
         log.info("================================================================================");
-        return ResponseEntity.ok(customerService.processBatchSpreadsheetImport(batchList != null ? batchList : List.of()));
+        return customerService.processBatchSpreadsheetImport(batchList != null ? batchList : List.of())
+                .thenApply(ResponseEntity::ok);
     }
 }

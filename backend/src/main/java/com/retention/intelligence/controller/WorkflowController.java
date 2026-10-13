@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class WorkflowController {
     private final EmailService emailService;
 
     @PostMapping({"/start/{customerId}", "/{customerId}/start"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Start Customer Recovery BPMN Workflow", description = "Launches Camunda CustomerRecoveryProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startRecoveryWorkflow(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -36,6 +38,7 @@ public class WorkflowController {
     }
 
     @PostMapping({"/start-executive-escalation/{customerId}", "/executive-escalation/{customerId}"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Start Executive Escalation Camunda Workflow", description = "Launches Camunda ExecutiveEscalationProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startExecutiveEscalationWorkflow(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -45,6 +48,7 @@ public class WorkflowController {
     }
 
     @PostMapping({"/start-churn-survey/{customerId}", "/churn-survey/{customerId}"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Start Churn Prevention Survey Camunda Workflow", description = "Launches Camunda ChurnPreventionSurveyProcess workflow instance")
     public ResponseEntity<WorkflowDTO> startChurnPreventionSurveyWorkflow(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -54,6 +58,7 @@ public class WorkflowController {
     }
 
     @PostMapping({"/trigger-all/{customerId}", "/all/{customerId}"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN')")
     @Operation(summary = "Trigger All 3 Camunda Workflows", description = "Launches all 3 Camunda BPMN workflows in sequence")
     public ResponseEntity<Map<String, Object>> triggerAllWorkflows(@PathVariable UUID customerId) {
         log.info("================================================================================");
@@ -72,6 +77,7 @@ public class WorkflowController {
     }
 
     @GetMapping({"/tasks", "/tasks/pending"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Get Pending Manager Approval User Tasks", description = "Retrieves all active Camunda user tasks waiting for manager approval")
     public ResponseEntity<List<WorkflowDTO>> getPendingManagerTasks() {
         log.info("📥 API REQUEST: GET /api/v1/workflow/tasks/pending - Querying active Camunda user tasks");
@@ -79,6 +85,7 @@ public class WorkflowController {
     }
 
     @PostMapping({"/tasks/{taskId}/complete", "/tasks/complete/{taskId}"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Complete Manager Approval Task", description = "Approves or rejects a pending Camunda user task and triggers immediate retention email")
     public ResponseEntity<WorkflowDTO> completeManagerTask(
             @PathVariable String taskId,
@@ -104,6 +111,7 @@ public class WorkflowController {
     }
 
     @PostMapping({"/test-email", "/send-email"})
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN')")
     @Operation(summary = "Dispatch Immediate Retention Email", description = "Dispatches immediate test retention email to recipient")
     public ResponseEntity<Map<String, String>> sendTestEmail(@RequestBody(required = false) Map<String, String> payload) {
         String recipient = (payload != null && payload.containsKey("recipient")) ? payload.get("recipient") : "zolani1999@gmail.com";

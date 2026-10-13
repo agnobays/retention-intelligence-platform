@@ -24,6 +24,24 @@ class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private com.retention.intelligence.repository.CompanyRepository companyRepository;
+    
+    @Mock
+    private com.retention.intelligence.service.DetectionEngineService detectionEngineService;
+    
+    @Mock
+    private com.retention.intelligence.service.CustomerValueEngineService customerValueEngineService;
+    
+    @Mock
+    private com.retention.intelligence.service.DecisionEngineService decisionEngineService;
+    
+    @Mock
+    private com.retention.intelligence.service.WorkflowService workflowService;
+    
+    @Mock
+    private com.retention.intelligence.service.NotificationService notificationService;
+
     @InjectMocks
     private CustomerService customerService;
 

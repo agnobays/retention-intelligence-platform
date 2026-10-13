@@ -28,20 +28,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                String userId = tokenProvider.getUserIdFromToken(jwt);
+                io.jsonwebtoken.Claims claims = tokenProvider.getClaimsFromToken(jwt);
+                String userId = claims.getSubject();
+                String roleStr = claims.get("role", String.class);
+                String companyIdStr = claims.get("companyId", String.class);
+                
+                java.util.UUID companyId = (companyIdStr != null && !companyIdStr.isEmpty()) ? java.util.UUID.fromString(companyIdStr) : null;
+                Role role = Role.valueOf(roleStr);
 
-                // Skeleton: Attach dummy principal for authenticated requests
+                UserPrincipal principal = new UserPrincipal(
+                        java.util.UUID.fromString(userId),
+                        companyId,
+                        claims.get("email", String.class),
+                        "", // no password needed here
+                        role,
+                        true
+                );
+
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, java.util.Collections.emptyList());
+                        new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                org.slf4j.MDC.put("userId", userId);
+                if (companyIdStr != null) {
+                    org.slf4j.MDC.put("companyId", companyIdStr);
+                }
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            org.slf4j.MDC.clear();
+        }
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {

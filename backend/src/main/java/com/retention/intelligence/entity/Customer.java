@@ -41,6 +41,19 @@ public class Customer {
     @Column(name = "health_score")
     private Integer healthScore; // 0-100
 
+    // Advanced ML and Value Modeling
+    @Column(name = "predictive_ltv")
+    private BigDecimal predictiveLtv;
+
+    @Column(name = "sentiment_score")
+    private Integer sentimentScore; // -100 (Angry) to 100 (Delighted)
+
+    @Column(name = "preferred_contact_method")
+    private String preferredContactMethod; // EMAIL, SMS, WHATSAPP, CALENDAR_INVITE
+
+    @Column(name = "ab_test_group")
+    private String abTestGroup; // CONTROL, VARIANT_A, VARIANT_B
+
     @Column(name = "frustration_score")
     private Integer frustrationScore; // 0-100 (e.g., 88, 76, 62)
 
@@ -103,7 +116,8 @@ public class Customer {
 
     public Customer(UUID id, Company company, String externalCustomerId, String name, String email,
                     String customerSegment, String tenure, String productsHeld, BigDecimal mrr, BigDecimal arr,
-                    Integer healthScore, Integer frustrationScore, Integer satisfactionScore, BigDecimal churnProbability,
+                    Integer healthScore, BigDecimal predictiveLtv, Integer sentimentScore, String preferredContactMethod, String abTestGroup,
+                    Integer frustrationScore, Integer satisfactionScore, BigDecimal churnProbability,
                     String status, String issueCategory, String issueSeverity, Integer previousComplaintsCount,
                     Integer resolutionTimeHours, Integer interactionsCount, Integer escalationsCount,
                     String recommendedIntervention, String rewardCategory, String rewardValue, Boolean rewardRedeemed,
@@ -120,6 +134,10 @@ public class Customer {
         this.mrr = mrr;
         this.arr = arr;
         this.healthScore = healthScore;
+        this.predictiveLtv = predictiveLtv;
+        this.sentimentScore = sentimentScore;
+        this.preferredContactMethod = preferredContactMethod;
+        this.abTestGroup = abTestGroup;
         this.frustrationScore = frustrationScore;
         this.satisfactionScore = satisfactionScore;
         this.churnProbability = churnProbability;
@@ -173,6 +191,18 @@ public class Customer {
 
     public Integer getHealthScore() { return healthScore; }
     public void setHealthScore(Integer healthScore) { this.healthScore = healthScore; }
+
+    public BigDecimal getPredictiveLtv() { return predictiveLtv; }
+    public void setPredictiveLtv(BigDecimal predictiveLtv) { this.predictiveLtv = predictiveLtv; }
+
+    public Integer getSentimentScore() { return sentimentScore; }
+    public void setSentimentScore(Integer sentimentScore) { this.sentimentScore = sentimentScore; }
+
+    public String getPreferredContactMethod() { return preferredContactMethod; }
+    public void setPreferredContactMethod(String preferredContactMethod) { this.preferredContactMethod = preferredContactMethod; }
+
+    public String getAbTestGroup() { return abTestGroup; }
+    public void setAbTestGroup(String abTestGroup) { this.abTestGroup = abTestGroup; }
 
     public Integer getFrustrationScore() { return frustrationScore; }
     public void setFrustrationScore(Integer frustrationScore) { this.frustrationScore = frustrationScore; }
@@ -245,6 +275,10 @@ public class Customer {
         private BigDecimal mrr;
         private BigDecimal arr;
         private Integer healthScore;
+        private BigDecimal predictiveLtv;
+        private Integer sentimentScore;
+        private String preferredContactMethod;
+        private String abTestGroup;
         private Integer frustrationScore;
         private Integer satisfactionScore;
         private BigDecimal churnProbability;
@@ -276,6 +310,10 @@ public class Customer {
         public CustomerBuilder mrr(BigDecimal mrr) { this.mrr = mrr; return this; }
         public CustomerBuilder arr(BigDecimal arr) { this.arr = arr; return this; }
         public CustomerBuilder healthScore(Integer healthScore) { this.healthScore = healthScore; return this; }
+        public CustomerBuilder predictiveLtv(BigDecimal predictiveLtv) { this.predictiveLtv = predictiveLtv; return this; }
+        public CustomerBuilder sentimentScore(Integer sentimentScore) { this.sentimentScore = sentimentScore; return this; }
+        public CustomerBuilder preferredContactMethod(String preferredContactMethod) { this.preferredContactMethod = preferredContactMethod; return this; }
+        public CustomerBuilder abTestGroup(String abTestGroup) { this.abTestGroup = abTestGroup; return this; }
         public CustomerBuilder frustrationScore(Integer frustrationScore) { this.frustrationScore = frustrationScore; return this; }
         public CustomerBuilder satisfactionScore(Integer satisfactionScore) { this.satisfactionScore = satisfactionScore; return this; }
         public CustomerBuilder churnProbability(BigDecimal churnProbability) { this.churnProbability = churnProbability; return this; }
@@ -298,7 +336,8 @@ public class Customer {
 
         public Customer build() {
             return new Customer(id, company, externalCustomerId, name, email, customerSegment, tenure, productsHeld, mrr, arr,
-                    healthScore, frustrationScore, satisfactionScore, churnProbability, status, issueCategory, issueSeverity,
+                    healthScore, predictiveLtv, sentimentScore, preferredContactMethod, abTestGroup,
+                    frustrationScore, satisfactionScore, churnProbability, status, issueCategory, issueSeverity,
                     previousComplaintsCount, resolutionTimeHours, interactionsCount, escalationsCount, recommendedIntervention,
                     rewardCategory, rewardValue, rewardRedeemed, postRecoveryScore, retentionOutcome, contractRenewalDate, createdAt, updatedAt);
         }

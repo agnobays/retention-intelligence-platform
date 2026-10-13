@@ -34,9 +34,9 @@ public class DetectionEngineService {
 
         List<AtRiskMetric> existingMetrics = atRiskMetricRepository.findByCustomerId(customerId);
 
-        String metricType = "TRANSACTION_VOLUME_DROP_45_PCT";
-        String severity = "HIGH";
-        String metricValue = "45% decline in corporate clearing transactions";
+        String metricType;
+        String severity;
+        String metricValue;
 
         if (!existingMetrics.isEmpty()) {
             AtRiskMetric metric = existingMetrics.get(0);
@@ -44,6 +44,17 @@ public class DetectionEngineService {
             severity = metric.getSeverity();
             metricValue = metric.getMetricValue();
         } else {
+            // Derive generic operational metric from customer attributes if available
+            if (customer.getIssueCategory() != null && !customer.getIssueCategory().isBlank()) {
+                metricType = customer.getIssueCategory().toUpperCase().replaceAll("[^A-Z0-9_]", "_");
+                severity = customer.getIssueSeverity() != null ? customer.getIssueSeverity() : "HIGH";
+                metricValue = customer.getIssueCategory();
+            } else {
+                metricType = "OPERATIONAL_ENGAGEMENT_DROP";
+                severity = "HIGH";
+                metricValue = "Significant decline in operational transaction volume & customer activity";
+            }
+
             AtRiskMetric newMetric = AtRiskMetric.builder()
                     .customer(customer)
                     .metricType(metricType)
@@ -53,10 +64,10 @@ public class DetectionEngineService {
             atRiskMetricRepository.save(newMetric);
         }
 
-        int updatedHealthScore = Math.max(30, customer.getHealthScore() != null ? customer.getHealthScore() : 45);
+        int updatedHealthScore = customer.getHealthScore() != null ? customer.getHealthScore() : 45;
         BigDecimal updatedChurnProb = customer.getChurnProbability() != null && customer.getChurnProbability().doubleValue() > 0
                 ? customer.getChurnProbability()
-                : new BigDecimal("78.50");
+                : new BigDecimal("75.00");
 
         customer.setHealthScore(updatedHealthScore);
         customer.setChurnProbability(updatedChurnProb);

@@ -137,18 +137,29 @@ public class EmailService {
         }
     }
 
-    private String buildTier1EmailTemplate(String customerName, String externalId, int discount, String action) {
+    private String buildTier1EmailTemplate(String customerName, String externalId, int discountOrValue, String action) {
+        String rewardText;
+        if (action.toLowerCase().contains("points") || action.toLowerCase().contains("loyalty")) {
+            rewardText = "<strong>Loyalty Reward Credited:</strong> " + discountOrValue + " Points Added";
+        } else if (action.toLowerCase().contains("voucher")) {
+            rewardText = "<strong>Gift Voucher Issued:</strong> R" + discountOrValue + " Value";
+        } else if (action.toLowerCase().contains("cashback")) {
+            rewardText = "<strong>Cashback Rewarded:</strong> R" + discountOrValue + " Transferred to your account";
+        } else {
+            rewardText = "<strong>Special Facility Concession:</strong> " + discountOrValue + "% Fee Credit";
+        }
+
         return "<html><body style='font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 24px;'>" +
                "<div style='max-width: 620px; margin: 0 auto; background: #1e293b; border-radius: 12px; padding: 32px; border: 1px solid #334155;'>" +
                "<h2 style='color: #38bdf8; margin-top: 0;'>Standard Bank Executive Client Care</h2>" +
                "<hr style='border-color: #334155;'/>" +
-               "<h3 style='color: #f8fafc;'>Service Update & Complimentary Loyalty Concession</h3>" +
+               "<h3 style='color: #f8fafc;'>Service Update & Complimentary Loyalty Benefit</h3>" +
                "<p>Dear <strong>" + customerName + "</strong> (" + externalId + "),</p>" +
                "<p>We are reaching out to inform you that our Executive Operations Team is currently managing your service request and finalizing your resolution.</p>" +
                "<p>We deeply value your partnership with Standard Bank. While our team completes your request, we want to thank you for your patience with a dedicated complimentary benefit:</p>" +
                "<div style='background: #0f172a; padding: 18px; border-radius: 8px; border-left: 4px solid #38bdf8; margin: 20px 0;'>" +
                "<p style='margin: 0; font-size: 15px; color: #38bdf8;'><strong>Complimentary Benefit:</strong> " + action + "</p>" +
-               "<p style='margin: 8px 0 0 0; font-size: 14px; color: #34d399;'><strong>Special Facility Concession:</strong> " + discount + "% Fee Credit</p>" +
+               "<p style='margin: 8px 0 0 0; font-size: 14px; color: #34d399;'>" + rewardText + "</p>" +
                "</div>" +
                "<p>Senior Relationship Manager Sipho Dlamini is personally overseeing your account and will notify you as soon as full resolution is complete.</p>" +
                "<p style='color: #94a3b8; font-size: 12px; margin-top: 24px;'>Standard Bank South Africa | Executive Client Care Desk</p>" +

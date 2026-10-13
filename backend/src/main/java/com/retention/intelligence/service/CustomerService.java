@@ -53,25 +53,36 @@ public class CustomerService {
         if (dto.getCompanyId() != null) {
             defaultCompany = companyRepository.findById(dto.getCompanyId()).orElse(null);
         }
+        
+        // Check active TenantContext if no company passed
         if (defaultCompany == null) {
-            defaultCompany = companyRepository.findById(UUID.fromString("11111111-1111-1111-1111-111111111111")).orElse(null);
+            String currentTenant = com.retention.intelligence.multitenancy.TenantContext.getTenantId();
+            if (!com.retention.intelligence.multitenancy.TenantContext.DEFAULT_TENANT.equals(currentTenant)) {
+                try {
+                    UUID tenantUuid = UUID.fromString(currentTenant);
+                    defaultCompany = companyRepository.findById(tenantUuid).orElse(null);
+                } catch (IllegalArgumentException ignored) {}
+            }
         }
+
         if (defaultCompany == null) {
             defaultCompany = companyRepository.findAll().stream().findFirst().orElse(null);
         }
         if (defaultCompany == null) {
             Company newComp = new Company();
-            newComp.setName("Standard Bank CIB");
-            newComp.setDomain("standardbank.co.za");
-            newComp.setIndustry("FINANCIAL_SERVICES");
-            newComp.setSubscriptionTier("ENTERPRISE");
-            defaultCompany = companyRepository.save(newComp);
+            newComp.setName("Enterprise Client");
+            newComp.setDomain("enterprise.co.za");
+            newComp.setIndustry("COMMERCIAL_SERVICES");
+            Company savedComp = companyRepository.save(newComp);
+            defaultCompany = savedComp != null ? savedComp : newComp;
         }
 
         final Company targetCompany = defaultCompany;
+        String prefix = targetCompany.getDomain() != null && targetCompany.getDomain().contains(".") 
+                ? targetCompany.getDomain().split("\\.")[0].toUpperCase() : "CLIENT";
         String extId = (dto.getExternalCustomerId() != null && !dto.getExternalCustomerId().trim().isEmpty())
                 ? dto.getExternalCustomerId().trim()
-                : "SB-CIB-" + (System.currentTimeMillis() % 10000);
+                : prefix + "-" + (System.currentTimeMillis() % 10000);
 
         Customer customer = customerRepository.findByExternalCustomerId(extId)
                 .orElseGet(() -> {
@@ -79,9 +90,9 @@ public class CustomerService {
                     newCust.setExternalCustomerId(extId);
                     newCust.setCompany(targetCompany);
                     newCust.setName(dto.getName() != null ? dto.getName() : "Unnamed Client");
-                    newCust.setEmail(dto.getEmail() != null ? dto.getEmail() : "client@standardbank.co.za");
-                    newCust.setMrr(dto.getMrr() != null ? dto.getMrr() : new BigDecimal("250000.00"));
-                    newCust.setArr(dto.getArr() != null ? dto.getArr() : new BigDecimal("3000000.00"));
+                    newCust.setEmail(dto.getEmail() != null ? dto.getEmail() : "client@" + targetCompany.getDomain());
+                    newCust.setMrr(dto.getMrr() != null ? dto.getMrr() : new BigDecimal("50000.00"));
+                    newCust.setArr(dto.getArr() != null ? dto.getArr() : new BigDecimal("600000.00"));
                     newCust.setHealthScore(dto.getHealthScore() != null ? dto.getHealthScore() : 45);
                     newCust.setChurnProbability(dto.getChurnProbability() != null ? dto.getChurnProbability() : new BigDecimal("78.50"));
                     newCust.setStatus(dto.getStatus() != null ? dto.getStatus() : "AT_RISK");
@@ -123,7 +134,8 @@ public class CustomerService {
         return mapToDTO(saved);
     }
 
-    public BatchImportResultDTO processBatchSpreadsheetImport(List<CustomerDTO> batchList) {
+    @org.springframework.scheduling.annotation.Async
+    public java.util.concurrent.CompletableFuture<BatchImportResultDTO> processBatchSpreadsheetImport(List<CustomerDTO> batchList) {
         log.info("================================================================================");
         log.info("📊 [SPREADSHEET BATCH IMPORT] Processing {} corporate account rows", batchList.size());
         log.info("================================================================================");
@@ -188,14 +200,14 @@ public class CustomerService {
             );
         }
 
-        return new BatchImportResultDTO(
+        return java.util.concurrent.CompletableFuture.completedFuture(new BatchImportResultDTO(
                 "SUCCESS",
                 batchList.size(),
                 atRiskCount,
                 workflowsLaunched,
                 "Successfully analyzed " + batchList.size() + " accounts from spreadsheet and launched " + workflowsLaunched + " Camunda 7 BPMN workflow instances.",
                 processedAccounts
-        );
+        ));
     }
 
     private void triggerPostImportEngines(Customer customer) {

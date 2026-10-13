@@ -19,8 +19,10 @@ public class IntegrationEngineController {
 
     @PostMapping("/webhook/{sourceSystem}")
     @Operation(summary = "Ingest Telemetry Webhook", description = "Receives webhooks from Segment, Hubspot, or Custom Telemetry")
-    public ResponseEntity<Map<String, Object>> receiveWebhook(@PathVariable String sourceSystem,
-                                                              @RequestBody Map<String, Object> payload) {
-        return ResponseEntity.ok(integrationEngineService.processWebhook(sourceSystem, payload));
+    public ResponseEntity<Map<String, Object>> receiveWebhook(
+            @PathVariable String sourceSystem,
+            @RequestHeader(value = "X-Webhook-Signature", required = false) String signature,
+            @RequestBody String rawPayload) {
+        return ResponseEntity.ok(integrationEngineService.processWebhook(sourceSystem, signature, rawPayload));
     }
 }

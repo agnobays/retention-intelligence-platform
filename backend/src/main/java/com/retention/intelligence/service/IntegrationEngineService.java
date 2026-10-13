@@ -14,6 +14,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 @Service
 @RequiredArgsConstructor
 public class IntegrationEngineService {
@@ -22,8 +33,25 @@ public class IntegrationEngineService {
     private final AtRiskMetricRepository atRiskMetricRepository;
     private final DetectionEngineService detectionEngineService;
     private final WorkflowService workflowService;
+    private final ObjectMapper objectMapper;
 
-    public Map<String, Object> processWebhook(String sourceSystem, Map<String, Object> payload) {
+    @Value("${webhook.secret:default_webhook_secret_dev_only}")
+    private String webhookSecret;
+
+    public Map<String, Object> processWebhook(String sourceSystem, String signature, String rawPayload) {
+        if (signature != null && !signature.isEmpty()) {
+            if (!isValidSignature(rawPayload, signature)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid webhook signature");
+            }
+        }
+
+        Map<String, Object> payload;
+        try {
+            payload = objectMapper.readValue(rawPayload, new TypeReference<Map<String, Object>>() {});
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid JSON payload");
+        }
+
         String extId = (String) payload.getOrDefault("externalCustomerId", "SB-CIB-1001");
         String metricType = (String) payload.getOrDefault("metricType", "TRANSACTION_VOLUME_DROP_45_PCT");
         String severity = (String) payload.getOrDefault("severity", "CRITICAL");
@@ -64,5 +92,18 @@ public class IntegrationEngineService {
                 "churnProbability", detection.getChurnProbability(),
                 "workflowInstanceId", workflow.getWorkflowInstanceId()
         );
+    }
+
+    private boolean isValidSignature(String payload, String signature) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(webhookSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            mac.init(secretKeySpec);
+            byte[] hmacBytes = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
+            String expectedSignature = Base64.getEncoder().encodeToString(hmacBytes);
+            return expectedSignature.equals(signature);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

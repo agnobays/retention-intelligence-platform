@@ -10,6 +10,13 @@ spring:
     properties:
       hibernate:
         format_sql: false
+  datasource:
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -21,8 +28,8 @@ camunda:
     webapp:
       index-redirect-enabled: true
     admin-user:
-      id: admin
-      password: adminpassword
+      id: ${CAMUNDA_ADMIN_ID:admin}
+      password: ${CAMUNDA_ADMIN_PASSWORD:adminpassword_dev_only}
       first-name: System
       last-name: Admin
 
@@ -44,3 +51,18 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: retention-service
+
+webhook:
+  secret: ${WEBHOOK_SECRET:default_webhook_secret_dev_only}

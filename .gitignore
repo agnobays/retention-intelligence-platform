@@ -35,3 +35,6 @@ docker/postgres_data/
 
 # Coverage reports
 **/coverage/
+
+# Binary docs
+*.pdf

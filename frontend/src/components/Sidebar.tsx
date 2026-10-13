@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
+  UserPlus,
   Building2, 
   Activity, 
   PlayCircle, 
@@ -16,7 +17,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
   { path: '/', label: 'Executive Dashboard', icon: LayoutDashboard },
-  { path: '/customers', label: 'Customers', icon: Users },
+  { path: '/acquisition', label: 'Acquisition Pipeline', icon: UserPlus },
+  { path: '/customers', label: 'Retention Portfolio', icon: Users },
   { path: '/companies', label: 'Companies', icon: Building2 },
   { path: '/detection', label: 'Detection Rules', icon: Activity },
   { path: '/recovery', label: 'Recovery Actions', icon: PlayCircle },

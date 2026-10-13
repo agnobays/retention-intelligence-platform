@@ -3,12 +3,14 @@ package com.retention.intelligence.controller;
 import com.retention.intelligence.entity.Customer;
 import com.retention.intelligence.repository.CustomerRepository;
 import com.retention.intelligence.service.AiAgentService;
+import com.retention.intelligence.service.AuditLogService;
 import com.retention.intelligence.service.EmailService;
 import com.retention.intelligence.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,6 +29,7 @@ public class AiAgentController {
     private final AuditLogService auditLogService;
 
     @PostMapping("/generate-email/{customerId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
     @Operation(summary = "Generate Custom AI Email Tailored to Customer Issue", description = "Analyzes customer specific issue, frustration telemetry, and generates custom tailored email with concession voucher")
     public ResponseEntity<AiAgentService.CustomEmailResponse> generateCustomEmail(@PathVariable UUID customerId) {
         Customer customer = customerRepository.findById(customerId).orElse(null);
@@ -58,6 +61,7 @@ public class AiAgentController {
     }
 
     @PostMapping("/send-custom-email/{customerId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Dispatch Custom AI Email via Resend API", description = "Dispatches the AI generated custom email to customer inbox and triggers follow-up tracking")
     public ResponseEntity<Map<String, String>> sendCustomEmail(@PathVariable UUID customerId, @RequestBody Map<String, String> payload) {
         Customer customer = customerRepository.findById(customerId).orElse(null);
@@ -103,6 +107,7 @@ public class AiAgentController {
     }
 
     @PostMapping("/follow-up/{customerId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER')")
     @Operation(summary = "Trigger Autonomous AI Ticket Follow-Up", description = "Executes automated follow-up check-in for open customer tickets until case is SAVED")
     public ResponseEntity<AiAgentService.CustomEmailResponse> triggerFollowUp(
             @PathVariable UUID customerId,
@@ -120,5 +125,50 @@ public class AiAgentController {
         }
 
         return ResponseEntity.ok(followUpResp);
+    }
+
+    @PostMapping("/analyze-sentiment/{customerId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN', 'MANAGER', 'ANALYST')")
+    @Operation(summary = "Real-Time NLP Sentiment Analysis", description = "Analyzes inbound customer communications (emails/tickets) to detect frustration and urgency in real-time, updating the frustration score.")
+    public ResponseEntity<Map<String, Object>> analyzeSentiment(@PathVariable UUID customerId, @RequestBody Map<String, String> payload) {
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        String textToAnalyze = payload.get("text");
+
+        if (customer == null || textToAnalyze == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid customer or text payload"));
+        }
+
+        AiAgentService.SentimentResponse sentimentResponse = aiAgentService.analyzeSentiment(textToAnalyze);
+
+        int frustrationAdjustment = sentimentResponse.getFrustrationAdjustment();
+        String detectedEmotion = sentimentResponse.getDetectedEmotion();
+        String sentimentScore = String.valueOf(sentimentResponse.getSentimentScore());
+
+        int newFrustration = Math.min(100, Math.max(0, (customer.getFrustrationScore() != null ? customer.getFrustrationScore() : 50) + frustrationAdjustment));
+        customer.setFrustrationScore(newFrustration);
+        customer.setSentimentScore(Integer.parseInt(sentimentScore));
+        customerRepository.save(customer);
+
+        if (auditLogService != null) {
+            auditLogService.recordLog(
+                "SESS-" + System.currentTimeMillis() % 1000000,
+                customer.getExternalCustomerId(),
+                customer.getName(),
+                "NLP_SENTIMENT_ANALYZED",
+                "AI Sentiment Engine",
+                customer.getEmail(),
+                "Inbound Communication Analyzed",
+                "Emotion: " + detectedEmotion + " | Frustration updated to: " + newFrustration + "/100",
+                "Adjustment: " + (frustrationAdjustment > 0 ? "+" : "") + frustrationAdjustment
+            );
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "status", "SUCCESS",
+            "detectedEmotion", detectedEmotion,
+            "sentimentScore", sentimentScore,
+            "newFrustrationScore", newFrustration,
+            "message", "Sentiment successfully analyzed and customer profile updated."
+        ));
     }
 }

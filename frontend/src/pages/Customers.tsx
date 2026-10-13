@@ -552,8 +552,9 @@ SB-CIB-2003,FirstRand Group Treasury,payments@firstrand.co.za,COMMERCIAL_SME,15 
                 <th className="px-4 py-3">Ext ID</th>
                 <th className="px-4 py-3">Customer Name</th>
                 <th className="px-4 py-3">Segment</th>
-                <th className="px-4 py-3">Frustration</th>
-                <th className="px-4 py-3">Health Score</th>
+                <th className="px-4 py-3">A/B Test Group</th>
+                <th className="px-4 py-3">Frustration / Sentiment</th>
+                <th className="px-4 py-3">pLTV</th>
                 <th className="px-4 py-3">Retention Risk</th>
                 <th className="px-4 py-3">Recommended Loyalty Reward</th>
                 <th className="px-4 py-3">Status</th>
@@ -569,11 +570,27 @@ SB-CIB-2003,FirstRand Group Treasury,payments@firstrand.co.za,COMMERCIAL_SME,15 
                     <div className="text-[10px] text-slate-500">{c.productsHeld || c.email}</div>
                   </td>
                   <td className="px-4 py-3">{getSegmentBadge(c.customerSegment)}</td>
-                  <td className="px-4 py-3 font-bold text-rose-400">
-                    {c.frustrationScore != null ? `${c.frustrationScore}/100` : '78/100'}
+                  <td className="px-4 py-3">
+                    {c.abTestGroup ? (
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        c.abTestGroup === 'VARIANT_A' ? 'bg-fuchsia-500/20 text-fuchsia-300' : 'bg-cyan-500/20 text-cyan-300'
+                      }`}>
+                        {c.abTestGroup.replace('_', ' ')}
+                      </span>
+                    ) : <span className="text-slate-500">-</span>}
                   </td>
-                  <td className={`px-4 py-3 font-bold ${c.healthScore < 50 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                    {c.healthScore}/100
+                  <td className="px-4 py-3">
+                    <div className="font-bold text-rose-400">
+                      {c.frustrationScore != null ? `${c.frustrationScore}/100 F` : '78/100 F'}
+                    </div>
+                    {c.sentimentScore != null && (
+                      <div className={`text-[10px] font-semibold mt-0.5 ${c.sentimentScore < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                        {c.sentimentScore} NLP
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-emerald-300 font-semibold">
+                    {c.predictiveLtv != null ? `R${(c.predictiveLtv / 1000).toFixed(0)}k` : `R${(c.arr / 1000 * 4.5).toFixed(0)}k`}
                   </td>
                   <td className={`px-4 py-3 font-bold ${c.churnProbability > 50 ? 'text-rose-400' : 'text-slate-300'}`}>
                     {c.churnProbability}%

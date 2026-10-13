@@ -11,7 +11,9 @@ import { Companies } from './pages/Companies';
 import { DetectionRules } from './pages/DetectionRules';
 import { RecoveryActions } from './pages/RecoveryActions';
 import { Reports } from './pages/Reports';
+import { Acquisition } from './pages/Acquisition';
 import { Settings } from './pages/Settings';
+import { Onboarding } from './pages/Onboarding';
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,7 @@ export const App: React.FC = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/onboarding" element={<Onboarding />} />
 
               <Route
                 path="/"
@@ -39,6 +42,7 @@ export const App: React.FC = () => {
               >
                 <Route index element={<Dashboard />} />
                 <Route path="customers" element={<Customers />} />
+                <Route path="acquisition" element={<Acquisition />} />
                 <Route path="companies" element={<Companies />} />
                 <Route path="detection" element={<DetectionRules />} />
                 <Route path="recovery" element={<RecoveryActions />} />

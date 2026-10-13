@@ -1,5 +1,9 @@
 package com.retention.intelligence.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -7,16 +11,37 @@ import java.util.UUID;
 public class CustomerDTO {
 
     private UUID id;
+    
+    @NotNull(message = "Company ID is required")
     private UUID companyId;
+    
+    @NotBlank(message = "External Customer ID is required")
     private String externalCustomerId;
+    
+    @NotBlank(message = "Name is required")
     private String name;
+    
+    @Email(message = "Invalid email format")
     private String email;
+    
     private String customerSegment; // PRIVATE_CLIENT, COMMERCIAL_SME, EVERYDAY_BANKING
     private String tenure;
     private String productsHeld;
+    
+    @Min(value = 0, message = "MRR cannot be negative")
     private BigDecimal mrr;
+    
+    @Min(value = 0, message = "ARR cannot be negative")
     private BigDecimal arr;
+    
     private Integer healthScore;
+    
+    // Advanced ML and Value Modeling
+    private BigDecimal predictiveLtv;
+    private Integer sentimentScore;
+    private String preferredContactMethod;
+    private String abTestGroup;
+
     private Integer frustrationScore;
     private Integer satisfactionScore;
     private BigDecimal churnProbability;
